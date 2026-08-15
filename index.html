@@ -13,9 +13,9 @@
 
 <title>Wildr · Travel Companion</title>
 
-<link rel="manifest" href="manifest.json" />
-<link rel="apple-touch-icon" href="icon-152.png" />
-<link rel="icon" type="image/png" sizes="32x32" href="icon-96.png" />
+<link rel="manifest" href="data:application/manifest+json,%7B%22name%22%3A%22Wildr%22%2C%22short_name%22%3A%22Wildr%22%2C%22description%22%3A%22Wildr%20%E2%80%94%20la%20tua%20bussola%20per%20ogni%20avventura.%22%2C%22start_url%22%3A%22.%22%2C%22scope%22%3A%22.%22%2C%22display%22%3A%22standalone%22%2C%22orientation%22%3A%22portrait%22%2C%22background_color%22%3A%22%23f6efe2%22%2C%22theme_color%22%3A%22%23c2410c%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22data%3Aimage%2Fsvg%2Bxml%2C%253Csvg%2520xmlns%253D%2527http%253A%252F%252Fwww.w3.org%252F2000%252Fsvg%2527%2520viewBox%253D%25270%25200%2520100%2520100%2527%253E%253Cdefs%253E%253ClinearGradient%2520id%253D%2527g%2527%2520x1%253D%25270%2527%2520y1%253D%25270%2527%2520x2%253D%2527100%2527%2520y2%253D%2527100%2527%253E%253Cstop%2520offset%253D%25270%2525%2527%2520stop-color%253D%2527%2523c2410c%2527%252F%253E%253Cstop%2520offset%253D%2527100%2525%2527%2520stop-color%253D%2527%2523f5b04a%2527%252F%253E%253C%252FlinearGradient%253E%253C%252Fdefs%253E%253Crect%2520width%253D%2527100%2527%2520height%253D%2527100%2527%2520rx%253D%252722%2527%2520fill%253D%2527url(%2523g)%2527%252F%253E%253Ctext%2520x%253D%252750%2527%2520y%253D%252766%2527%2520font-size%253D%252754%2527%2520text-anchor%253D%2527middle%2527%253E%25F0%259F%25A7%25AD%253C%252Ftext%253E%253C%252Fsvg%253E%22%2C%22sizes%22%3A%22any%22%2C%22type%22%3A%22image%2Fsvg%2Bxml%22%2C%22purpose%22%3A%22any%20maskable%22%7D%5D%7D" />
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='100' y2='100'%3E%3Cstop offset='0%25' stop-color='%23c2410c'/%3E%3Cstop offset='100%25' stop-color='%23f5b04a'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='100' height='100' rx='22' fill='url(%23g)'/%3E%3Ctext x='50' y='66' font-size='54' text-anchor='middle'%3E%F0%9F%A7%AD%3C/text%3E%3C/svg%3E" />
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='100' y2='100'%3E%3Cstop offset='0%25' stop-color='%23c2410c'/%3E%3Cstop offset='100%25' stop-color='%23f5b04a'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='100' height='100' rx='22' fill='url(%23g)'/%3E%3Ctext x='50' y='66' font-size='54' text-anchor='middle'%3E%F0%9F%A7%AD%3C/text%3E%3C/svg%3E" />
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -1177,36 +1177,46 @@
     margin: -14px auto 18px;
   }
 
-  /* === STAGE KIND TOGGLE (tappa vs intermedia) === */
-  .ns-kind-toggle {
+  /* === STAGE KIND TABS (principale / secondaria / alternativa) === */
+  .ns-kind-tabs {
     display: flex;
-    gap: 8px;
+    gap: 6px;
+    background: var(--surface-2);
+    padding: 4px;
+    border-radius: var(--radius-sm);
   }
-  .ns-kind-btn {
+  .ns-kind-tab {
     flex: 1;
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 8px;
-    padding: 12px;
-    background: var(--surface-2);
-    border: 1.5px solid var(--border);
-    border-radius: var(--radius-sm);
+    gap: 4px;
+    padding: 10px 4px;
+    background: transparent;
+    border: 1.5px solid transparent;
+    border-radius: 9px;
     font-weight: 700;
-    font-size: 14px;
+    font-size: 11px;
     color: var(--ink-muted);
     transition: all 0.15s;
   }
-  .ns-kind-icon { font-size: 18px; }
-  .ns-kind-btn.active {
-    background: var(--ochre-soft);
+  .ns-kind-icon { font-size: 19px; }
+  .ns-kind-tab.active {
+    background: var(--surface);
+    box-shadow: var(--shadow-sm);
+  }
+  .ns-kind-tab.active#ns-kind-stage {
     border-color: var(--ochre);
     color: var(--ochre-dark);
   }
-  .ns-kind-btn.active[id="ns-kind-waypoint"] {
-    background: var(--river-soft);
+  .ns-kind-tab.active#ns-kind-waypoint {
     border-color: var(--river);
     color: var(--river);
+  }
+  .ns-kind-tab.active#ns-kind-alternative {
+    border-color: var(--sun);
+    color: #92650f;
   }
 
   /* === TYPE GRID for new trip === */
@@ -2088,6 +2098,15 @@
   }
   .photo-tile:hover .photo-del,
   .photo-tile.show-del .photo-del { opacity: 1; }
+  .photo-broken-icon {
+    width: 100%; height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    opacity: 0.35;
+    background: var(--surface-2);
+  }
 
   .lightbox {
     position: fixed; inset: 0;
@@ -3031,6 +3050,107 @@
     border: 1px solid var(--border);
   }
 
+  /* === TAPPE ALTERNATIVE (affiancate al genitore) === */
+  .itin-alt-row {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+    padding: 4px 4px 14px 46px;
+    margin-top: -4px;
+    margin-bottom: 8px;
+    position: relative;
+  }
+  .itin-alt-row::-webkit-scrollbar { height: 5px; }
+  .itin-alt-row-last { margin-bottom: 2px; }
+  .itin-alt-connector {
+    position: absolute;
+    top: -8px;
+    left: 27px;
+    width: 2px;
+    height: 12px;
+    background: repeating-linear-gradient(to bottom, var(--sun) 0, var(--sun) 3px, transparent 3px, transparent 6px);
+  }
+  .itin-alt-card {
+    flex-shrink: 0;
+    width: 138px;
+    background: var(--surface);
+    border: 1.5px dashed #d9a441;
+    border-radius: 14px;
+    padding: 10px 26px 9px 10px;
+    position: relative;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .itin-alt-card:hover {
+    border-color: var(--sun);
+    box-shadow: 0 6px 14px rgba(245, 176, 74, 0.25);
+    transform: translateY(-2px);
+  }
+  .itin-alt-badge {
+    width: 24px; height: 24px;
+    border-radius: 50%;
+    background: var(--sun);
+    color: #6b4423;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    margin-bottom: 6px;
+  }
+  .itin-alt-name {
+    font-weight: 700;
+    font-size: 12.5px;
+    line-height: 1.25;
+    margin-bottom: 4px;
+    color: var(--ink);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+  }
+  .itin-alt-meta {
+    font-size: 10px;
+    color: var(--ink-muted);
+    font-weight: 700;
+  }
+  .itin-alt-warn { color: var(--warning); }
+  .itin-alt-edit {
+    position: absolute;
+    top: 6px; right: 6px;
+    width: 20px; height: 20px;
+    border-radius: 6px;
+    background: var(--surface-2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    opacity: 0.65;
+    transition: all 0.15s;
+  }
+  .itin-alt-edit:hover { opacity: 1; background: var(--ochre-soft); }
+  .itin-alt-add {
+    flex-shrink: 0;
+    width: 52px;
+    border-radius: 14px;
+    border: 2px dashed var(--border-strong);
+    background: transparent;
+    color: var(--ink-faint);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    font-weight: 300;
+    transition: all 0.15s;
+  }
+  .itin-alt-add:hover {
+    border-color: var(--sun);
+    color: #92650f;
+    background: rgba(245, 176, 74, 0.10);
+  }
+
   .itin-add-btn {
     width: 100%;
     padding: 14px;
@@ -3114,6 +3234,7 @@
     box-shadow: 0 2px 6px rgba(194,65,12,0.25);
   }
   .quick-itin-badge.origin { background: var(--moss); font-size: 16px; }
+  .quick-itin-badge.waypoint { background: var(--river); font-size: 15px; }
   .quick-itin-info { flex: 1; min-width: 0; }
   .quick-itin-name {
     font-weight: 700;
@@ -3912,19 +4033,27 @@
     </div>
     <div class="field">
       <label>Tipo</label>
-      <div class="ns-kind-toggle">
-        <button type="button" class="ns-kind-btn active" id="ns-kind-stage" onclick="selectStageKind('stage')">
+      <div class="ns-kind-tabs">
+        <button type="button" class="ns-kind-tab active" id="ns-kind-stage" onclick="selectStageKind('stage')">
           <span class="ns-kind-icon">📍</span>
-          <span>Tappa</span>
+          <span>Principale</span>
         </button>
-        <button type="button" class="ns-kind-btn" id="ns-kind-waypoint" onclick="selectStageKind('waypoint')">
+        <button type="button" class="ns-kind-tab" id="ns-kind-waypoint" onclick="selectStageKind('waypoint')">
           <span class="ns-kind-icon">📌</span>
-          <span>Intermedia</span>
+          <span>Secondaria</span>
+        </button>
+        <button type="button" class="ns-kind-tab" id="ns-kind-alternative" onclick="selectStageKind('alternative')">
+          <span class="ns-kind-icon">🔀</span>
+          <span>Alternativa</span>
         </button>
       </div>
-      <div style="font-size:11px; color:var(--ink-muted); margin-top:6px; line-height:1.4">
-        Le tappe intermedie sono soste o posti da visitare lungo il percorso — appaiono sulla mappa con un colore diverso.
+      <div id="ns-kind-hint" style="font-size:11px; color:var(--ink-muted); margin-top:6px; line-height:1.4">
+        Tappa principale: fa parte del percorso ed è numerata nell'itinerario.
       </div>
+    </div>
+    <div class="field" id="ns-parent-field" style="display:none">
+      <label>Alternativa a</label>
+      <select id="ns-parent-stage"></select>
     </div>
     <div class="field"><label>Nome tappa</label><input id="ns-title" type="text" placeholder="Nome del luogo" /></div>
     <div class="field">
@@ -3956,8 +4085,8 @@
   <div class="modal modal-full" style="padding:0; display:flex; flex-direction:column">
     <div style="padding:calc(var(--safe-top) + 14px) 18px 12px; display:flex; align-items:center; justify-content:space-between; background:var(--surface); border-bottom:1px solid var(--border); flex-shrink:0">
       <div>
-        <div style="font-family:'Fraunces',serif; font-size:20px; font-weight:800; letter-spacing:-0.02em">🗺️ Seleziona sulla mappa</div>
-        <div style="font-size:12px; color:var(--ink-muted); margin-top:2px">Tocca il punto esatto della tappa</div>
+        <div id="map-picker-title" style="font-family:'Fraunces',serif; font-size:20px; font-weight:800; letter-spacing:-0.02em">🗺️ Seleziona sulla mappa</div>
+        <div id="map-picker-subtitle" style="font-size:12px; color:var(--ink-muted); margin-top:2px">Tocca il punto esatto della tappa</div>
       </div>
       <button class="modal-close" onclick="closeMapPicker()">×</button>
     </div>
@@ -4779,7 +4908,7 @@ function updateAvatars() {
   document.querySelectorAll('#user-avatar, #user-avatar-cal, #user-avatar-notes, #profile-avatar-big').forEach(el => {
     if (!el) return;
     if (photoUrl) {
-      el.innerHTML = `<img src="${photoUrl}" alt="" />`;
+      el.innerHTML = `<img src="${photoUrl}" alt="" onerror="this.parentElement.textContent='${initials}'" />`;
     } else {
       el.textContent = initials;
     }
@@ -5538,7 +5667,10 @@ function renderQuickItin() {
       </div>
     `;
   }
-  stages.forEach((s, i) => {
+  let stageCounter = 0;
+  stages.filter(s => s.kind !== 'alternative').forEach((s) => {
+    const isWaypoint = s.kind === 'waypoint';
+    if (!isWaypoint) stageCounter++;
     const meta = [
       s.date ? formatDate(s.date) : null,
       s.days ? s.days + ' gg' : null,
@@ -5546,7 +5678,7 @@ function renderQuickItin() {
     ].filter(Boolean).join(' · ');
     rows += `
       <div class="quick-itin-row" onclick="openStageDetail('${s.id}')">
-        <div class="quick-itin-badge">${i+1}</div>
+        <div class="quick-itin-badge${isWaypoint ? ' waypoint' : ''}">${isWaypoint ? '📌' : stageCounter}</div>
         <div class="quick-itin-info">
           <div class="quick-itin-name">${escapeHtml(s.title || 'Senza nome')}</div>
           <div class="quick-itin-sub">${meta || 'Nessun dettaglio'}</div>
@@ -5905,8 +6037,18 @@ window.saveChecklistItem = saveChecklistItem;
 function renderStages() {
   const list = document.getElementById('stages-list');
   const trip = state.currentTrip;
-  const stages = state.currentStages || [];
+  const allStages = state.currentStages || [];
   const origin = trip?.origin || '';
+
+  // Separa la sequenza principale (stage/waypoint) dalle alternative,
+  // raggruppando queste ultime per tappa genitore
+  const mainStages = allStages.filter(s => s.kind !== 'alternative');
+  const altsByParent = {};
+  allStages.filter(s => s.kind === 'alternative').forEach(a => {
+    const pid = a.parentId || '__orphan__';
+    if (!altsByParent[pid]) altsByParent[pid] = [];
+    altsByParent[pid].push(a);
+  });
 
   let html = '';
 
@@ -5943,8 +6085,8 @@ function renderStages() {
     `;
   }
 
-  // ── 2. Tappe (numerazione salta le intermedie) ──
-  if (!stages.length) {
+  // ── 2. Tappe principali/secondarie, con alternative affiancate ──
+  if (!mainStages.length) {
     html += `
       <div class="empty-state" style="padding: 34px 20px">
         <div class="empty-state-icon">📍</div>
@@ -5957,22 +6099,23 @@ function renderStages() {
   }
 
   let stageCounter = 0;
-  stages.forEach((s, i) => {
+  mainStages.forEach((s, i) => {
     const isWaypoint = s.kind === 'waypoint';
     if (!isWaypoint) stageCounter++;
-    const isLast = i === stages.length - 1;
+    const isLast = i === mainStages.length - 1;
     const hasCoords = s.lat != null && s.lng != null;
     const canMoveUp = i > 0;
-    const canMoveDown = i < stages.length - 1;
+    const canMoveDown = i < mainStages.length - 1;
+    const alts = altsByParent[s.id] || [];
 
     if (isWaypoint) {
-      // Nodo tappa intermedia — stile compatto, colore fiume
+      // Nodo tappa secondaria — stile compatto, colore fiume
       html += `
         <div class="itin-node itin-waypoint" onclick="openStageDetail('${s.id}')">
           <div class="itin-connector"></div>
           <div class="itin-badge itin-badge-waypoint">📌</div>
           <div class="itin-body">
-            <div class="itin-eyebrow itin-eyebrow-waypoint">Tappa intermedia</div>
+            <div class="itin-eyebrow itin-eyebrow-waypoint">Tappa secondaria</div>
             <div class="itin-title">${escapeHtml(s.title || 'Senza nome')}</div>
             <div class="itin-meta-row" id="itin-seg-${s.id}">
               ${s.date ? `<span class="itin-meta">📅 ${formatDate(s.date)}</span>` : ''}
@@ -5990,7 +6133,7 @@ function renderStages() {
       `;
     } else {
       html += `
-        <div class="itin-node ${isLast ? 'itin-last' : ''}" onclick="openStageDetail('${s.id}')">
+        <div class="itin-node ${isLast && !alts.length ? 'itin-last' : ''}" onclick="openStageDetail('${s.id}')">
           <div class="itin-connector"></div>
           <div class="itin-badge">${stageCounter}</div>
           <div class="itin-body">
@@ -6010,6 +6153,30 @@ function renderStages() {
             </div>
             <button class="itin-quick-btn" title="Modifica" onclick="event.stopPropagation(); openEditStage('${s.id}')">✏️</button>
           </div>
+        </div>
+      `;
+    }
+
+    // ── Alternative affiancate — una riga scrollabile subito sotto la tappa genitore ──
+    if (alts.length) {
+      html += `
+        <div class="itin-alt-row ${isLast ? 'itin-alt-row-last' : ''}">
+          <div class="itin-alt-connector"></div>
+          ${alts.map(a => {
+            const altHasCoords = a.lat != null && a.lng != null;
+            return `
+              <div class="itin-alt-card" onclick="openStageDetail('${a.id}')">
+                <div class="itin-alt-badge">🔀</div>
+                <div class="itin-alt-name">${escapeHtml(a.title || 'Senza nome')}</div>
+                ${a.date ? `<div class="itin-alt-meta">📅 ${formatDate(a.date)}</div>` : ''}
+                ${!altHasCoords ? `<div class="itin-alt-meta itin-alt-warn">⚠️ senza coord.</div>` : ''}
+                <button class="itin-alt-edit" title="Modifica" onclick="event.stopPropagation(); openEditStage('${a.id}')">✏️</button>
+              </div>
+            `;
+          }).join('')}
+          <button class="itin-alt-add" onclick="openNewStageModal('alternative','${s.id}')" title="Aggiungi alternativa">
+            <span>+</span>
+          </button>
         </div>
       `;
     }
@@ -6034,13 +6201,15 @@ function renderStages() {
 if (!state.segmentInfoCache) state.segmentInfoCache = {};
 
 function buildOrderedRoutePoints() {
-  // Ritorna array ordinato di punti con coordinate: partenza (se presente) + tappe/intermedie
+  // Ritorna array ordinato di punti con coordinate: partenza (se presente) + tappe/secondarie
+  // Le tappe ALTERNATIVE sono escluse: non fanno parte del percorso sequenziale.
   const trip = state.currentTrip;
   const points = [];
   if (trip?.originLat != null && trip?.originLng != null) {
     points.push({ id: '__origin__', lat: trip.originLat, lng: trip.originLng, kind: 'origin', title: trip.origin || 'Partenza' });
   }
   (state.currentStages || []).forEach(s => {
+    if (s.kind === 'alternative') return; // non instradata
     if (s.lat != null && s.lng != null) {
       points.push({ id: s.id, lat: s.lat, lng: s.lng, kind: s.kind === 'waypoint' ? 'waypoint' : 'stage', title: s.title });
     }
@@ -6102,6 +6271,7 @@ function openOriginPrompt() {
   if (!trip) return;
   const container = document.getElementById('stage-detail-content');
   if (!container) return;
+  state.originPickerCoords = null; // reset selezione manuale precedente
   container.innerHTML = `
     <div style="text-align:center; padding:8px 0 18px; position:relative">
       <div style="width:64px; height:64px; border-radius:50%; background:var(--moss); color:#fff; display:inline-flex; align-items:center; justify-content:center; font-size:32px; margin-bottom:10px; box-shadow:0 6px 18px rgba(91,111,58,0.4)">🏠</div>
@@ -6115,6 +6285,12 @@ function openOriginPrompt() {
     <div class="field">
       <label>Punto di partenza</label>
       <input id="quick-origin-input" type="text" placeholder="Città o indirizzo di partenza" value="${escapeHtml(trip.origin || '')}" />
+      <div style="margin-top:8px">
+        <button class="btn btn-sm" onclick="openMapPicker('origin')" style="width:100%; background:var(--moss); color:#fff">🗺️ Sulla mappa</button>
+      </div>
+      <div style="font-size:11px; color:var(--ink-muted); margin-top:6px; line-height:1.4">
+        💡 Se la ricerca automatica non trova l'indirizzo, usa "Sulla mappa" per selezionare il punto esatto.
+      </div>
     </div>
     <div class="field">
       <label>Giorno di partenza</label>
@@ -6134,8 +6310,9 @@ function openOriginPrompt() {
 }
 window.openOriginPrompt = openOriginPrompt;
 
-/* Geocoding helper (Nominatim) — ritorna {lat, lng, display_name} o null */
-async function geocodeAddress(query) {
+/* Geocoding helper (Nominatim) — ritorna {lat, lng, display_name} o null.
+   Include un retry per resilienza contro il rate-limit del server pubblico. */
+async function geocodeAddress(query, _retry) {
   if (!query || !query.trim()) return null;
   try {
     const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=1`;
@@ -6144,7 +6321,18 @@ async function geocodeAddress(query) {
     if (data && data[0]) {
       return { lat: parseFloat(data[0].lat), lng: parseFloat(data[0].lon), display_name: data[0].display_name };
     }
-  } catch (e) { console.warn('geocode error', e); }
+    // Nessun risultato — un solo retry dopo breve pausa (il server pubblico a volte è rate-limited)
+    if (!_retry) {
+      await new Promise(r => setTimeout(r, 700));
+      return geocodeAddress(query, true);
+    }
+  } catch (e) {
+    console.warn('geocode error', e);
+    if (!_retry) {
+      await new Promise(r => setTimeout(r, 700));
+      return geocodeAddress(query, true);
+    }
+  }
   return null;
 }
 
@@ -6159,20 +6347,26 @@ async function saveQuickOrigin() {
   if (!val) return showToast('Inserisci un punto di partenza', 'error');
   try {
     if (saveBtn) saveBtn.disabled = true;
-    if (statusEl) statusEl.textContent = '📍 Cerco le coordinate…';
     showLoader(true);
 
     const data = { origin: val };
     if (dateVal) data.startDate = dateVal;
 
-    // Geocoding best-effort per abilitare calcolo tragitto e mappa
-    const geo = await geocodeAddress(val);
-    if (geo) {
-      data.originLat = geo.lat;
-      data.originLng = geo.lng;
-      if (statusEl) statusEl.textContent = '✅ Posizione trovata';
-    } else if (statusEl) {
-      statusEl.textContent = '⚠️ Posizione non trovata — solo testo salvato';
+    if (state.originPickerCoords) {
+      // Coordinate scelte manualmente sulla mappa — priorità, nessun geocoding necessario
+      data.originLat = state.originPickerCoords.lat;
+      data.originLng = state.originPickerCoords.lng;
+      if (statusEl) statusEl.textContent = '✅ Posizione dalla mappa';
+    } else {
+      if (statusEl) statusEl.textContent = '📍 Cerco le coordinate…';
+      const geo = await geocodeAddress(val);
+      if (geo) {
+        data.originLat = geo.lat;
+        data.originLng = geo.lng;
+        if (statusEl) statusEl.textContent = '✅ Posizione trovata';
+      } else if (statusEl) {
+        statusEl.textContent = '⚠️ Posizione non trovata — usa "Sulla mappa" per impostarla manualmente';
+      }
     }
 
     await window.FB.updateDoc(
@@ -6180,6 +6374,7 @@ async function saveQuickOrigin() {
       data
     );
     if (state.currentTrip) Object.assign(state.currentTrip, data);
+    state.originPickerCoords = null;
     closeModal('stage-detail-modal');
     showToast('Partenza impostata 🏠', 'success');
   } catch (e) { console.error(e); showToast('Errore: ' + e.message, 'error'); }
@@ -6206,22 +6401,71 @@ function showOriginInfo() {
         <div class="lbl">Giorno di partenza</div>
         <div class="val" style="font-size:18px">📅 ${formatDate(trip.startDate)}</div>
       </div>` : ''}
-    ${!hasCoords ? `
-      <div style="background:var(--surface-2); padding:12px 14px; border-radius:10px; margin-bottom:14px; text-align:center; font-size:13px; color:var(--ink-muted)">
-        ⚠️ Coordinate non trovate — il tragitto verso la prima tappa non può essere calcolato
-      </div>` : ''}
+    ${hasCoords ? `
+      <div class="info-box" style="text-align:center; margin-bottom:14px">
+        <div class="lbl">Coordinate</div>
+        <div class="val mono" style="font-size:14px">${trip.originLat.toFixed(5)}, ${trip.originLng.toFixed(5)}</div>
+      </div>` : `
+      <div style="background:rgba(217,119,6,0.1); border-left:4px solid var(--warning); padding:12px 14px; border-radius:10px; margin-bottom:14px; text-align:center; font-size:13px; color:var(--ink-2)">
+        ⚠️ Coordinate non trovate — il tragitto verso la prima tappa non può essere calcolato.<br>
+        <button class="btn btn-sm" style="margin-top:8px; background:var(--moss); color:#fff; width:auto" onclick="fixOriginOnMap()">🗺️ Imposta sulla mappa</button>
+      </div>`}
     <button class="btn btn-secondary" onclick="openOriginPrompt()">✏️ Modifica partenza</button>
   `;
   openModal('stage-detail-modal');
 }
 window.showOriginInfo = showOriginInfo;
 
+/* Scorciatoia: apre direttamente il map picker per correggere le coordinate mancanti della partenza.
+   confirmMapPicker() rileva automaticamente il contesto e salva subito su Firestore. */
+function fixOriginOnMap() {
+  state.originPickerCoords = null;
+  openMapPicker('origin');
+}
+window.fixOriginOnMap = fixOriginOnMap;
+
 function selectStageKind(kind) {
   state.newStageKind = kind;
   document.getElementById('ns-kind-stage')?.classList.toggle('active', kind === 'stage');
   document.getElementById('ns-kind-waypoint')?.classList.toggle('active', kind === 'waypoint');
+  document.getElementById('ns-kind-alternative')?.classList.toggle('active', kind === 'alternative');
+
+  const hintEl = document.getElementById('ns-kind-hint');
+  const parentField = document.getElementById('ns-parent-field');
+  if (kind === 'waypoint') {
+    if (hintEl) hintEl.textContent = 'Tappa secondaria: sosta lungo il percorso, inclusa nel tragitto ma senza numero principale.';
+    if (parentField) parentField.style.display = 'none';
+  } else if (kind === 'alternative') {
+    if (hintEl) hintEl.textContent = 'Tappa alternativa: un\'opzione in più per una tappa già esistente — appare affiancata ad essa, non nel percorso.';
+    if (parentField) parentField.style.display = 'block';
+    populateAlternativeParentSelect();
+  } else {
+    if (hintEl) hintEl.textContent = 'Tappa principale: fa parte del percorso ed è numerata nell\'itinerario.';
+    if (parentField) parentField.style.display = 'none';
+  }
 }
 window.selectStageKind = selectStageKind;
+
+/* Popola il menu a tendina "Alternativa a" con le tappe principali/secondarie esistenti
+   (esclude l'eventuale tappa in modifica per evitare auto-riferimenti) */
+function populateAlternativeParentSelect() {
+  const sel = document.getElementById('ns-parent-stage');
+  if (!sel) return;
+  const candidates = (state.currentStages || []).filter(s =>
+    s.kind !== 'alternative' && s.id !== state.editingStageId
+  );
+  if (!candidates.length) {
+    sel.innerHTML = '<option value="">Nessuna tappa disponibile — creane una prima</option>';
+    return;
+  }
+  const prevValue = sel.value;
+  sel.innerHTML = candidates.map(s =>
+    `<option value="${s.id}">${s.kind === 'waypoint' ? '📌' : '📍'} ${escapeHtml(s.title || 'Senza nome')}</option>`
+  ).join('');
+  // Ripristina la selezione precedente se ancora valida, altrimenti usa il valore già salvato in edit
+  if (prevValue && candidates.some(c => c.id === prevValue)) sel.value = prevValue;
+}
+window.populateAlternativeParentSelect = populateAlternativeParentSelect;
 
 async function saveStage() {
   const title = document.getElementById('ns-title').value.trim();
@@ -6229,11 +6473,21 @@ async function saveStage() {
   const days = parseInt(document.getElementById('ns-days').value) || 1;
   const notes = document.getElementById('ns-notes').value.trim();
   if (!title) return showToast('Inserisci un nome', 'error');
+
+  const kind = ['waypoint', 'alternative'].includes(state.newStageKind) ? state.newStageKind : 'stage';
+
+  let parentId = null;
+  if (kind === 'alternative') {
+    const parentSel = document.getElementById('ns-parent-stage');
+    parentId = parentSel ? parentSel.value : '';
+    if (!parentId) return showToast('Scegli a quale tappa è alternativa', 'error');
+  }
+
   try {
     showLoader(true);
     const isEdit = !!state.editingStageId;
-    const kind = state.newStageKind === 'waypoint' ? 'waypoint' : 'stage';
     const data = { title, date, days, notes, kind };
+    data.parentId = kind === 'alternative' ? parentId : null;
     if (state.newStageData) {
       data.lat = state.newStageData.lat;
       data.lng = state.newStageData.lng;
@@ -6252,7 +6506,10 @@ async function saveStage() {
       data.createdAt = window.FB.serverTimestamp();
       data.createdBy = state.user.uid;
       await window.FB.addDoc(window.FB.collection(window.FB.db, 'trips', state.currentTripId, 'stages'), data);
-      showToast(kind === 'waypoint' ? 'Tappa intermedia aggiunta! 📌' : 'Tappa aggiunta! 📍', 'success');
+      const msg = kind === 'waypoint' ? 'Tappa secondaria aggiunta! 📌'
+                : kind === 'alternative' ? 'Alternativa aggiunta! 🔀'
+                : 'Tappa aggiunta! 📍';
+      showToast(msg, 'success');
     }
     closeStageModal();
   } catch (e) { console.error(e); showToast('Errore: ' + e.message, 'error'); }
@@ -6274,7 +6531,15 @@ function openEditStage(stageId) {
   document.getElementById('ns-date').value = s.date || '';
   document.getElementById('ns-days').value = s.days || 1;
   document.getElementById('ns-notes').value = s.notes || '';
-  selectStageKind(s.kind === 'waypoint' ? 'waypoint' : 'stage');
+  const kind = ['waypoint', 'alternative'].includes(s.kind) ? s.kind : 'stage';
+  selectStageKind(kind);
+  if (kind === 'alternative') {
+    // populateAlternativeParentSelect già chiamato da selectStageKind; imposta il valore salvato
+    setTimeout(() => {
+      const sel = document.getElementById('ns-parent-stage');
+      if (sel && s.parentId) sel.value = s.parentId;
+    }, 0);
+  }
   const coordsEl = document.getElementById('ns-coords');
   if (s.lat != null && s.lng != null) {
     coordsEl.textContent = `${s.lat.toFixed(5)}, ${s.lng.toFixed(5)}`;
@@ -6309,20 +6574,37 @@ function closeStageModal() {
 }
 window.closeStageModal = closeStageModal;
 
-function openNewStageModal() {
+function openNewStageModal(presetKind, presetParentId) {
   // Assicura stato pulito (non in edit mode)
   state.editingStageId = null;
   document.getElementById('ns-modal-title').innerHTML = '📍 Nuova tappa';
   document.getElementById('ns-save-btn').textContent = 'Salva tappa';
-  selectStageKind('stage');
+  selectStageKind(presetKind === 'alternative' || presetKind === 'waypoint' ? presetKind : 'stage');
+  if (presetKind === 'alternative' && presetParentId) {
+    setTimeout(() => {
+      const sel = document.getElementById('ns-parent-stage');
+      if (sel) sel.value = presetParentId;
+    }, 0);
+  }
   openModal('new-stage-modal');
 }
 window.openNewStageModal = openNewStageModal;
 
 async function deleteStage(id) {
-  if (!confirm('Eliminare questa tappa?')) return;
+  const children = (state.currentStages || []).filter(x => x.kind === 'alternative' && x.parentId === id);
+  const confirmMsg = children.length
+    ? `Eliminare questa tappa e le sue ${children.length} alternative collegate?`
+    : 'Eliminare questa tappa?';
+  if (!confirm(confirmMsg)) return;
   try {
-    await window.FB.deleteDoc(window.FB.doc(window.FB.db, 'trips', state.currentTripId, 'stages', id));
+    if (children.length) {
+      const batch = window.FB.writeBatch(window.FB.db);
+      batch.delete(window.FB.doc(window.FB.db, 'trips', state.currentTripId, 'stages', id));
+      children.forEach(c => batch.delete(window.FB.doc(window.FB.db, 'trips', state.currentTripId, 'stages', c.id)));
+      await batch.commit();
+    } else {
+      await window.FB.deleteDoc(window.FB.doc(window.FB.db, 'trips', state.currentTripId, 'stages', id));
+    }
     showToast('Tappa eliminata');
   } catch (e) { showToast('Errore: ' + e.message, 'error'); }
 }
@@ -6331,14 +6613,16 @@ window.deleteStage = deleteStage;
 /* Riordina una tappa su/giù nell'elenco — aggiorna 'order' su Firestore,
    la mappa e la lista si aggiornano da sole tramite il listener realtime */
 async function moveStage(id, direction) {
-  const stages = state.currentStages || [];
-  const idx = stages.findIndex(s => s.id === id);
+  // Il riordino su/giù si applica solo a tappe principali/secondarie —
+  // le alternative restano agganciate al loro genitore (parentId) e non hanno posizione propria in sequenza
+  const mainStages = (state.currentStages || []).filter(s => s.kind !== 'alternative');
+  const idx = mainStages.findIndex(s => s.id === id);
   if (idx === -1) return;
   const targetIdx = direction === 'up' ? idx - 1 : idx + 1;
-  if (targetIdx < 0 || targetIdx >= stages.length) return; // già ai bordi
+  if (targetIdx < 0 || targetIdx >= mainStages.length) return; // già ai bordi
 
-  const a = stages[idx];
-  const b = stages[targetIdx];
+  const a = mainStages[idx];
+  const b = mainStages[targetIdx];
 
   try {
     // Scambia i valori 'order' tra le due tappe coinvolte
@@ -6773,9 +7057,11 @@ function renderMap() {
 
   const trip = state.currentTrip;
   const hasOrigin = trip?.originLat != null && trip?.originLng != null;
-  const stagesWithCoords = state.currentStages.filter(s => s.lat != null && s.lng != null);
+  const allStagesWithCoords = state.currentStages.filter(s => s.lat != null && s.lng != null);
+  const stagesWithCoords = allStagesWithCoords.filter(s => s.kind !== 'alternative'); // esclude le alternative dal routing
+  const altsWithCoords = allStagesWithCoords.filter(s => s.kind === 'alternative');
 
-  // Punti ordinati per il routing: partenza (se presente) + tappe/intermedie in ordine
+  // Punti ordinati per il routing: partenza (se presente) + tappe/secondarie in ordine (NO alternative)
   const routePoints = [];
   if (hasOrigin) routePoints.push({ lat: trip.originLat, lng: trip.originLng, kind: 'origin', title: trip.origin || 'Partenza' });
   stagesWithCoords.forEach(s => routePoints.push({ lat: s.lat, lng: s.lng, kind: s.kind === 'waypoint' ? 'waypoint' : 'stage', title: s.title }));
@@ -6785,7 +7071,7 @@ function renderMap() {
   let zoom = 5;
   const allPoints = [
     ...(hasOrigin ? [[trip.originLat, trip.originLng]] : []),
-    ...stagesWithCoords.map(s => [s.lat, s.lng]),
+    ...allStagesWithCoords.map(s => [s.lat, s.lng]),
     ...state.currentMarkers.map(m => [m.lat, m.lng])
   ];
   if (allPoints.length) {
@@ -6821,10 +7107,9 @@ function renderMap() {
       .bindPopup(`<strong>🏠 Partenza</strong><br/>${escapeHtml(trip.origin || '')}${trip.startDate ? '<br/>📅 ' + formatDate(trip.startDate) : ''}`);
   }
 
-  // ── Tappe numerate (le intermedie hanno badge diverso, senza numero) ──
+  // ── Tappe numerate (le secondarie hanno badge diverso, senza numero) ──
   let stageCounter = 0;
-  state.currentStages.forEach((s) => {
-    if (s.lat == null || s.lng == null) return;
+  stagesWithCoords.forEach((s) => {
     const isWaypoint = s.kind === 'waypoint';
     if (!isWaypoint) stageCounter++;
     const icon = isWaypoint
@@ -6838,6 +7123,23 @@ function renderMap() {
         });
     L.marker([s.lat, s.lng], { icon }).addTo(state.mapInstance)
       .bindPopup(`<strong>${isWaypoint ? '📌 ' : ''}${escapeHtml(s.title)}</strong>${s.date ? '<br/>📅 ' + formatDate(s.date) : ''}${s.notes ? '<br/>' + escapeHtml(s.notes) : ''}`);
+  });
+
+  // ── Tappe ALTERNATIVE — marker distinto (sole/dorato), collegate al genitore con linea tratteggiata, non instradate ──
+  altsWithCoords.forEach(a => {
+    const parent = state.currentStages.find(p => p.id === a.parentId);
+    // Linea tratteggiata sottile verso il genitore, se il genitore ha coordinate
+    if (parent && parent.lat != null && parent.lng != null) {
+      L.polyline([[parent.lat, parent.lng], [a.lat, a.lng]], {
+        color: '#f5b04a', weight: 2.5, opacity: 0.75, dashArray: '2, 8', lineCap: 'round'
+      }).addTo(state.mapInstance);
+    }
+    const altIcon = L.divIcon({
+      html: `<div style="background:#f5b04a;color:#6b4423;width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;box-shadow:0 4px 10px rgba(245,176,74,0.55);border:2.5px dashed #fff">🔀</div>`,
+      iconSize: [30, 30], iconAnchor: [15, 15], className: ''
+    });
+    L.marker([a.lat, a.lng], { icon: altIcon }).addTo(state.mapInstance)
+      .bindPopup(`<strong>🔀 ${escapeHtml(a.title || 'Alternativa')}</strong><br/><em style="font-size:12px">Alternativa a: ${escapeHtml(parent?.title || '—')}</em>${a.notes ? '<br/>' + escapeHtml(a.notes) : ''}`);
   });
 
   // ── Marker emoji personalizzati ──
@@ -7808,7 +8110,7 @@ async function renderTripPhotos() {
     empty.style.display = 'none';
     grid.innerHTML = photos.map((p, idx) => `
       <div class="photo-tile" onclick="openLightbox(${idx})">
-        <img src="${p.thumbUrl || p.url}" alt="" loading="lazy" />
+        <img src="${p.thumbUrl || p.url}" alt="" loading="lazy" onerror="this.closest('.photo-tile').classList.add('photo-broken'); this.replaceWith(Object.assign(document.createElement('div'),{className:'photo-broken-icon',innerHTML:'🖼️'}))" />
         ${p.uploadedBy === state.user.uid ? `<button class="photo-del" onclick="event.stopPropagation(); deleteTripPhoto('${p.id}')">×</button>` : ''}
       </div>
     `).join('');
@@ -9198,19 +9500,25 @@ function copyInviteLink() {
 window.copyInviteLink = copyInviteLink;
 
 /* ============================================
-   MAP PICKER — seleziona una tappa cliccando sulla mappa
+   MAP PICKER — seleziona una tappa (o la partenza) cliccando sulla mappa
    ============================================ */
 let _mapPickerInstance = null;
 let _mapPickerMarker = null;
 let _mapPickerSelected = null;
+let _mapPickerMode = 'stage'; // 'stage' | 'origin'
 
-function openMapPicker() {
+function openMapPicker(mode) {
+  _mapPickerMode = mode === 'origin' ? 'origin' : 'stage';
   openModal('map-picker-modal');
   _mapPickerSelected = null;
   const confirmBtn = document.getElementById('map-picker-confirm');
   if (confirmBtn) confirmBtn.disabled = true;
   const coordsEl = document.getElementById('map-picker-coords');
   if (coordsEl) coordsEl.innerHTML = '<span style="color:var(--ink-muted)">Nessun punto selezionato</span>';
+  const titleEl = document.getElementById('map-picker-title');
+  if (titleEl) titleEl.textContent = _mapPickerMode === 'origin' ? '🗺️ Seleziona la partenza' : '🗺️ Seleziona sulla mappa';
+  const subEl = document.getElementById('map-picker-subtitle');
+  if (subEl) subEl.textContent = _mapPickerMode === 'origin' ? 'Tocca il punto esatto da cui parti' : 'Tocca il punto esatto della tappa';
 
   // Slight delay so modal is rendered before initializing map
   setTimeout(() => {
@@ -9311,9 +9619,47 @@ function closeMapPicker() {
 }
 window.closeMapPicker = closeMapPicker;
 
-function confirmMapPicker() {
+async function confirmMapPicker() {
   if (!_mapPickerSelected) { showToast('Tocca prima un punto sulla mappa', 'error'); return; }
   const { lat, lng, address, name } = _mapPickerSelected;
+
+  if (_mapPickerMode === 'origin') {
+    const originInput = document.getElementById('quick-origin-input');
+    if (originInput) {
+      // Siamo nel prompt completo "Da dove parti?" — memorizza le coordinate,
+      // l'utente conferma con "Salva partenza"
+      state.originPickerCoords = { lat, lng };
+      if (!originInput.value.trim() && (name || address)) {
+        originInput.value = name || (address ? address.split(',').slice(0,2).join(',') : '');
+      }
+      const statusEl = document.getElementById('quick-origin-status');
+      if (statusEl) statusEl.innerHTML = `✅ Posizione impostata dalla mappa (${lat.toFixed(4)}, ${lng.toFixed(4)})`;
+      closeMapPicker();
+      showToast('✅ Posizione selezionata', 'success');
+    } else {
+      // Correzione rapida (es. da "Imposta sulla mappa" quando mancano le coordinate) —
+      // salva subito su Firestore senza richiedere altri passaggi
+      closeMapPicker();
+      try {
+        showLoader(true);
+        await window.FB.updateDoc(
+          window.FB.doc(window.FB.db, 'trips', state.currentTripId),
+          { originLat: lat, originLng: lng }
+        );
+        if (state.currentTrip) { state.currentTrip.originLat = lat; state.currentTrip.originLng = lng; }
+        showToast('Coordinate partenza aggiornate 🏠', 'success');
+        if (document.getElementById('stage-detail-modal')?.classList.contains('active')) showOriginInfo();
+      } catch (e) {
+        console.error(e);
+        showToast('Errore: ' + e.message, 'error');
+      } finally {
+        showLoader(false);
+      }
+    }
+    return;
+  }
+
+  // Modalità 'stage' (default)
   state.newStageData = { lat, lng, address: address || `${lat.toFixed(5)}, ${lng.toFixed(5)}` };
   const coordsEl = document.getElementById('ns-coords');
   if (coordsEl) coordsEl.textContent = `${lat.toFixed(5)}, ${lng.toFixed(5)}`;
@@ -9332,23 +9678,97 @@ window.confirmMapPicker = confirmMapPicker;
    STAGE DETAIL MODAL — vedi i dati di una tappa
    ============================================ */
 function openStageDetail(stageId) {
-  const stages = state.currentStages || [];
-  const idx = stages.findIndex(s => s.id === stageId);
-  if (idx === -1) return;
-  const s = stages[idx];
-  const total = stages.length;
+  const allStages = state.currentStages || [];
+  const s = allStages.find(x => x.id === stageId);
+  if (!s) return;
   const container = document.getElementById('stage-detail-content');
   if (!container) return;
-
-  const stageNum = idx + 1;
   const hasCoords = s.lat != null && s.lng != null;
+  const trip = state.currentTrip;
 
-  // Prev/next stage
-  const prev = idx > 0 ? stages[idx-1] : null;
-  const next = idx < total - 1 ? stages[idx+1] : null;
+  // ═══════════════════════════════════════════
+  // TAPPA ALTERNATIVA — vista dedicata, senza numerazione in sequenza
+  // ═══════════════════════════════════════════
+  if (s.kind === 'alternative') {
+    const parent = allStages.find(p => p.id === s.parentId);
+    const siblings = allStages.filter(x => x.kind === 'alternative' && x.parentId === s.parentId && x.id !== s.id);
+
+    container.innerHTML = `
+      <div style="text-align:center; padding:8px 0 18px; position:relative">
+        <div style="width:64px; height:64px; border-radius:50%; background:var(--sun); color:#6b4423; display:inline-flex; align-items:center; justify-content:center; font-size:28px; margin-bottom:10px; box-shadow:0 6px 18px rgba(245,176,74,0.4)">
+          🔀
+        </div>
+        <div style="font-family:'Fraunces',serif; font-style:italic; font-size:12px; color:var(--ink-muted); margin-bottom:2px; letter-spacing:0.05em">Tappa alternativa</div>
+        <h2 style="margin:0; font-size:24px; font-weight:800; letter-spacing:-0.02em; padding:0 30px">${escapeHtml(s.title || 'Alternativa senza nome')}</h2>
+        <button class="modal-close" style="position:absolute; top:0; right:0" onclick="closeModal('stage-detail-modal')">×</button>
+      </div>
+
+      ${parent ? `
+        <div style="background:rgba(245,176,74,0.12); border-left:4px solid var(--sun); padding:12px 14px; border-radius:10px; margin-bottom:14px; cursor:pointer" onclick="openStageDetail('${parent.id}')">
+          <div style="font-size:10px; color:#92650f; font-weight:800; text-transform:uppercase; letter-spacing:0.08em; margin-bottom:4px">Alternativa a</div>
+          <div style="font-size:14px; font-weight:700; color:var(--ink)">${parent.kind === 'waypoint' ? '📌' : '📍'} ${escapeHtml(parent.title || '—')} <span style="color:var(--ink-faint); font-weight:400">›</span></div>
+        </div>` : `
+        <div style="background:var(--surface-2); padding:12px 14px; border-radius:10px; margin-bottom:14px; text-align:center; font-size:12px; color:var(--ink-muted)">
+          ⚠️ Tappa collegata non trovata (forse eliminata)
+        </div>`}
+
+      ${s.address ? `
+        <div style="background:var(--surface); border:1.5px solid var(--border); padding:12px 14px; border-radius:10px; margin-bottom:14px">
+          <div style="font-size:10px; color:var(--ink-muted); font-weight:800; text-transform:uppercase; letter-spacing:0.08em; margin-bottom:4px">Indirizzo</div>
+          <div style="font-size:13px; line-height:1.4; color:var(--ink)">${escapeHtml(s.address)}</div>
+        </div>` : ''}
+
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:14px">
+        <div class="info-box">
+          <div class="lbl">Data</div>
+          <div class="val" style="font-size:15px">${s.date ? formatDate(s.date) : '—'}</div>
+        </div>
+        <div class="info-box">
+          <div class="lbl">Coordinate</div>
+          <div class="val mono" style="font-size:12px">${hasCoords ? `${s.lat.toFixed(4)}, ${s.lng.toFixed(4)}` : '—'}</div>
+        </div>
+      </div>
+
+      ${s.notes ? `
+        <div style="margin-bottom:14px">
+          <div style="font-size:10px; color:var(--ink-muted); font-weight:800; text-transform:uppercase; letter-spacing:0.08em; margin-bottom:6px">Note</div>
+          <div style="background:var(--surface); border:1.5px solid var(--border); padding:12px 14px; border-radius:10px; font-size:14px; line-height:1.55; white-space:pre-wrap">${escapeHtml(s.notes)}</div>
+        </div>` : ''}
+
+      ${hasCoords ? `
+        <button class="btn btn-secondary" style="margin-bottom:14px" onclick="openInMaps(${s.lat}, ${s.lng}, ${JSON.stringify(s.title||'')})">📍 Apri in Maps</button>
+      ` : ''}
+
+      ${siblings.length ? `
+        <div style="margin-bottom:14px">
+          <div style="font-size:10px; color:var(--ink-muted); font-weight:800; text-transform:uppercase; letter-spacing:0.08em; margin-bottom:8px">Altre alternative per questa tappa</div>
+          <div style="display:flex; gap:8px; overflow-x:auto">
+            ${siblings.map(sib => `<button class="btn btn-sm btn-secondary" style="flex-shrink:0; width:auto" onclick="openStageDetail('${sib.id}')">🔀 ${escapeHtml((sib.title||'').slice(0,16))}</button>`).join('')}
+          </div>
+        </div>` : ''}
+
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:6px">
+        <button class="btn btn-secondary" onclick="closeModal('stage-detail-modal'); openEditStage('${s.id}')">✏️ Modifica</button>
+        <button class="btn btn-danger" onclick="deleteStage('${s.id}'); closeModal('stage-detail-modal')">🗑️ Elimina</button>
+      </div>
+    `;
+    openModal('stage-detail-modal');
+    return;
+  }
+
+  // ═══════════════════════════════════════════
+  // TAPPA PRINCIPALE / SECONDARIA — numerazione nella sequenza (esclude le alternative)
+  // ═══════════════════════════════════════════
+  const mainStages = allStages.filter(x => x.kind !== 'alternative');
+  const idx = mainStages.findIndex(x => x.id === stageId);
+  const total = mainStages.length;
+  const stageNum = idx + 1;
+
+  const prev = idx > 0 ? mainStages[idx - 1] : null;
+  const next = idx < total - 1 ? mainStages[idx + 1] : null;
+  const alts = allStages.filter(x => x.kind === 'alternative' && x.parentId === s.id);
 
   // Compute FROM (previous stage OR trip origin) for directions
-  const trip = state.currentTrip;
   let fromDesc = null;      // string label ("da …")
   let fromParam = null;     // string to pass to Maps (address or "lat,lng")
   if (prev && prev.lat != null && prev.lng != null) {
@@ -9364,7 +9784,7 @@ function openStageDetail(stageId) {
       <div style="width:64px; height:64px; border-radius:50%; background:var(--grad-sunset); color:#fff; display:inline-flex; align-items:center; justify-content:center; font-family:'Fraunces',serif; font-weight:800; font-size:28px; margin-bottom:10px; box-shadow:var(--shadow-warm)">
         ${stageNum}
       </div>
-      <div style="font-family:'Fraunces',serif; font-style:italic; font-size:12px; color:var(--ink-muted); margin-bottom:2px; letter-spacing:0.05em">Tappa ${stageNum} di ${total}</div>
+      <div style="font-family:'Fraunces',serif; font-style:italic; font-size:12px; color:var(--ink-muted); margin-bottom:2px; letter-spacing:0.05em">Tappa ${stageNum} di ${total}${s.kind === 'waypoint' ? ' · secondaria' : ''}</div>
       <h2 style="margin:0; font-size:24px; font-weight:800; letter-spacing:-0.02em; padding:0 30px">${escapeHtml(s.title || 'Tappa senza nome')}</h2>
       <button class="modal-close" style="position:absolute; top:0; right:0" onclick="closeModal('stage-detail-modal')">×</button>
     </div>
@@ -9418,6 +9838,18 @@ function openStageDetail(stageId) {
           </button>`}
       </div>` : ''}
 
+    <!-- Alternative collegate a questa tappa -->
+    ${alts.length ? `
+      <div style="margin-bottom:14px">
+        <div style="font-size:10px; color:#92650f; font-weight:800; text-transform:uppercase; letter-spacing:0.08em; margin-bottom:8px">🔀 Alternative per questa tappa</div>
+        <div style="display:flex; gap:8px; overflow-x:auto">
+          ${alts.map(a => `<button class="btn btn-sm" style="flex-shrink:0; width:auto; background:rgba(245,176,74,0.15); color:#92650f; border:1.5px dashed #d9a441" onclick="openStageDetail('${a.id}')">🔀 ${escapeHtml((a.title||'').slice(0,16))}</button>`).join('')}
+          <button class="btn btn-sm btn-secondary" style="flex-shrink:0; width:auto" onclick="closeModal('stage-detail-modal'); openNewStageModal('alternative','${s.id}')">+ Aggiungi</button>
+        </div>
+      </div>` : `
+      <button class="btn btn-secondary" style="margin-bottom:14px; border-style:dashed" onclick="closeModal('stage-detail-modal'); openNewStageModal('alternative','${s.id}')">🔀 Aggiungi tappa alternativa</button>
+    `}
+
     <!-- Naviga tra tappe -->
     ${(prev || next) ? `
       <div style="display:flex; gap:8px; margin-bottom:14px">
@@ -9462,13 +9894,21 @@ window.openMapsDirections = openMapsDirections;
 
 <!-- PWA install UI rimossa — installazione via menu del browser -->
 
-<!-- Service Worker registration (silent — no install popups) -->
+<!-- Service Worker registration — verifica prima che il file esista per evitare errori 404 in console.
+     Se in futuro viene aggiunto un vero sw.js al repository, verrà registrato automaticamente. -->
 <script>
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('./sw.js', { scope: './' })
-      .then(reg => console.log('SW registrato:', reg.scope))
-      .catch(err => console.warn('SW non registrato:', err));
+    fetch('./sw.js', { method: 'HEAD' })
+      .then(res => {
+        if (res.ok) {
+          navigator.serviceWorker.register('./sw.js', { scope: './' })
+            .then(reg => console.log('SW registrato:', reg.scope))
+            .catch(err => console.warn('SW non registrato:', err));
+        }
+        // Se sw.js non esiste (404), non tentiamo la registrazione — nessun errore in console.
+      })
+      .catch(() => { /* offline o rete non disponibile — salta silenziosamente */ });
   });
 }
 // Silently capture beforeinstallprompt so the browser doesn't show its default banner constantly
