@@ -531,18 +531,79 @@
   }
 
   /* === BOTTOM NAV === */
+  /* === BOTTOM NAV (collassabile con freccia) === */
+  .bottom-nav-wrapper {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    z-index: 100;
+    display: none;
+    pointer-events: none; /* clicks pass through to content unless on nav/toggle */
+  }
+  .bottom-nav-wrapper.active { display: block; }
+
   .bottom-nav {
-    position: fixed; bottom: 0; left: 0; right: 0;
-    background: var(--surface);
+    background: rgba(255, 255, 255, 0.92);
     border-top: 1px solid var(--border);
     display: flex; justify-content: space-around;
     padding: 8px 0 calc(8px + var(--safe-bottom));
-    z-index: 100;
     box-shadow: 0 -10px 30px rgba(74, 49, 34, 0.08);
     backdrop-filter: blur(16px);
-    background: rgba(255, 255, 255, 0.92);
+    pointer-events: auto;
+    overflow: hidden;
+    max-height: 130px;
+    opacity: 1;
+    transition: max-height 0.35s cubic-bezier(0.4,0,0.2,1), opacity 0.25s, padding 0.35s cubic-bezier(0.4,0,0.2,1);
   }
   [data-theme="dark"] .bottom-nav { background: rgba(46, 36, 24, 0.92); }
+
+  /* Toggle freccia — sopra la nav quando aperta, in basso quando collassata */
+  .bottom-nav-toggle {
+    position: absolute;
+    bottom: 100%; /* subito sopra la nav */
+    right: 22px;
+    width: 42px; height: 22px;
+    background: rgba(255, 255, 255, 0.92);
+    backdrop-filter: blur(16px);
+    border: 1px solid var(--border);
+    border-bottom: none;
+    border-radius: 12px 12px 0 0;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--ink-muted);
+    font-size: 11px;
+    box-shadow: 0 -4px 12px rgba(74, 49, 34, 0.08);
+    pointer-events: auto;
+    cursor: pointer;
+    transition: color 0.15s, background 0.15s;
+  }
+  [data-theme="dark"] .bottom-nav-toggle { background: rgba(46, 36, 24, 0.92); }
+  .bottom-nav-toggle:hover { color: var(--ochre); }
+  .bottom-nav-toggle:active { transform: scale(0.94); }
+  .bnt-arrow {
+    display: inline-block;
+    transition: transform 0.35s cubic-bezier(0.4,0,0.2,1);
+    line-height: 1;
+  }
+
+  /* Collassata */
+  .bottom-nav-wrapper.collapsed .bottom-nav {
+    max-height: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    opacity: 0.2;
+  }
+  .bottom-nav-wrapper.collapsed .bnt-arrow {
+    transform: rotate(180deg);
+  }
+  .bottom-nav-wrapper.collapsed .bottom-nav-toggle {
+    background: var(--ochre);
+    color: #fff;
+    border-color: var(--ochre);
+    box-shadow: 0 -4px 14px rgba(194, 65, 12, 0.35);
+    /* Un pelo più basso perché ora si vede meglio */
+    bottom: var(--safe-bottom);
+    border-radius: 12px 12px 0 0;
+  }
+
   .nav-btn {
     flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px;
     padding: 8px 4px;
@@ -2650,6 +2711,83 @@
   .affiliate-card .af-sub { font-size: 10px; color: var(--ink-muted); }
 
   /* === ITINERARY NODES (con connettore verticale) === */
+  .origin-prompt {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 18px;
+    margin-bottom: 12px;
+    background: linear-gradient(135deg, var(--moss-soft) 0%, var(--surface) 60%);
+    border: 2px dashed var(--moss);
+    border-radius: var(--radius-lg);
+    cursor: pointer;
+    transition: transform 0.1s, box-shadow 0.15s, background 0.15s;
+    overflow: hidden;
+  }
+  .origin-prompt::before {
+    content: '';
+    position: absolute;
+    top: -30px; right: -30px;
+    width: 120px; height: 120px;
+    background: radial-gradient(circle, rgba(91, 111, 58, 0.20), transparent 70%);
+    pointer-events: none;
+  }
+  .origin-prompt:hover {
+    background: linear-gradient(135deg, var(--moss-soft) 0%, var(--moss-soft) 100%);
+    box-shadow: 0 6px 18px rgba(91, 111, 58, 0.18);
+  }
+  .origin-prompt:active { transform: scale(0.99); }
+  .origin-prompt-icon {
+    width: 52px; height: 52px;
+    border-radius: 50%;
+    background: var(--moss);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 26px;
+    flex-shrink: 0;
+    box-shadow: 0 4px 12px rgba(91, 111, 58, 0.35);
+    animation: originPulse 2s ease-in-out infinite;
+    z-index: 1;
+  }
+  @keyframes originPulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.06); }
+  }
+  .origin-prompt-body { flex: 1; min-width: 0; z-index: 1; }
+  .origin-prompt-eyebrow {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-size: 12px;
+    color: var(--moss-dark);
+    font-weight: 600;
+    margin-bottom: 3px;
+  }
+  .origin-prompt-title {
+    font-family: 'Fraunces', serif;
+    font-size: 22px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    color: var(--ink);
+    margin-bottom: 4px;
+    line-height: 1.15;
+  }
+  .origin-prompt-sub {
+    font-size: 12px;
+    color: var(--ink-2);
+    line-height: 1.45;
+  }
+  .origin-prompt-arrow {
+    font-size: 28px;
+    color: var(--moss);
+    flex-shrink: 0;
+    font-weight: 300;
+    z-index: 1;
+  }
+
+  /* === ITINERARY NODES (con connettore verticale) === */
   .itin-node {
     position: relative;
     display: flex;
@@ -2903,49 +3041,6 @@
     font-weight: 300;
   }
 
-  /* === WANDERING CAMPER (che passa in basso ogni tanto) === */
-  .wandering-camper {
-    position: fixed;
-    bottom: calc(74px + var(--safe-bottom) + 2px);
-    left: -90px;
-    font-size: 34px;
-    z-index: 5;
-    pointer-events: none;
-    animation: camperDrive 55s linear infinite;
-    animation-delay: 10s;
-    filter: drop-shadow(0 4px 6px rgba(42, 26, 14, 0.25));
-    display: none; /* shown by JS once app is active */
-    will-change: transform, left;
-  }
-  .wandering-camper.active { display: block; }
-  @keyframes camperDrive {
-    0%   { left: -90px; transform: translateY(0) scaleX(1); }
-    2%   { transform: translateY(-2px) scaleX(1); }
-    4%   { transform: translateY(0) scaleX(1); }
-    6%   { transform: translateY(-3px) scaleX(1); }
-    8%   { transform: translateY(0) scaleX(1); }
-    30%  { left: calc(100vw + 90px); transform: translateY(-2px) scaleX(1); }
-    30.01% { left: calc(100vw + 90px); transform: scaleX(1); } /* stays off-screen */
-    100% { left: calc(100vw + 90px); transform: scaleX(1); }
-  }
-  /* Dust particles behind camper */
-  .wandering-camper::before {
-    content: '·  ·';
-    position: absolute;
-    top: 55%;
-    right: 100%;
-    margin-right: 2px;
-    color: var(--ink-faint);
-    font-size: 16px;
-    opacity: 0.6;
-    letter-spacing: 4px;
-    animation: dust 0.6s ease-out infinite;
-  }
-  @keyframes dust {
-    0% { opacity: 0.7; transform: translateX(0); }
-    100% { opacity: 0; transform: translateX(-8px); }
-  }
-
   /* === DESKTOP RESPONSIVE === */
   @media (min-width: 768px) {
     body {
@@ -2960,14 +3055,19 @@
     .hero-header, .header { padding-left: 32px; padding-right: 32px; }
     .hero-row, .header > * { max-width: 780px; margin-left: auto; margin-right: auto; }
     .header { display: flex; }
-    .bottom-nav {
+    .bottom-nav-wrapper.active {
       max-width: 640px;
       left: 50%;
-      transform: translateX(-50%);
       right: auto;
+      transform: translateX(-50%);
+    }
+    .bottom-nav {
       border-radius: 20px 20px 0 0;
       border-left: 1px solid var(--border);
       border-right: 1px solid var(--border);
+    }
+    .bottom-nav-toggle {
+      right: 22px;
     }
     .fab { right: max(22px, calc(50vw - 400px)); }
     .modal { max-width: 560px; border-radius: 24px; margin-bottom: 30px; }
@@ -3562,33 +3662,38 @@
     </div>
   </div>
 
-  <!-- Bottom nav -->
-  <nav class="bottom-nav" id="bottom-nav" style="display:none">
-    <button class="nav-btn active" data-page="home" onclick="showPage('home')">
-      <span class="nav-btn-icon">
-        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
-      </span>
-      Home
+  <!-- Bottom nav (collassabile) -->
+  <div class="bottom-nav-wrapper" id="bottom-nav-wrapper">
+    <button class="bottom-nav-toggle" onclick="toggleBottomNav()" aria-label="Mostra/nascondi barra di navigazione" title="Mostra/nascondi barra">
+      <span class="bnt-arrow">▼</span>
     </button>
-    <button class="nav-btn" data-page="calendar" onclick="showPage('calendar')">
-      <span class="nav-btn-icon">
-        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-      </span>
-      Agenda
-    </button>
-    <button class="nav-btn" data-page="notes" onclick="showPage('notes')">
-      <span class="nav-btn-icon">
-        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
-      </span>
-      Diario
-    </button>
-    <button class="nav-btn" data-page="profile" onclick="showPage('profile')">
-      <span class="nav-btn-icon">
-        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
-      </span>
-      Profilo
-    </button>
-  </nav>
+    <nav class="bottom-nav" id="bottom-nav">
+      <button class="nav-btn active" data-page="home" onclick="showPage('home')">
+        <span class="nav-btn-icon">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+        </span>
+        Home
+      </button>
+      <button class="nav-btn" data-page="calendar" onclick="showPage('calendar')">
+        <span class="nav-btn-icon">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+        </span>
+        Agenda
+      </button>
+      <button class="nav-btn" data-page="notes" onclick="showPage('notes')">
+        <span class="nav-btn-icon">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
+        </span>
+        Diario
+      </button>
+      <button class="nav-btn" data-page="profile" onclick="showPage('profile')">
+        <span class="nav-btn-icon">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+        </span>
+        Profilo
+      </button>
+    </nav>
+  </div>
 
 </div>
 
@@ -4011,9 +4116,6 @@
   <div class="lightbox-info" id="lightbox-info"></div>
   <button class="lightbox-nav lightbox-next" onclick="lightboxNav(1)">›</button>
 </div>
-
-<!-- Wandering camper (runs across bottom periodically) -->
-<div id="wandering-camper" class="wandering-camper">🚐</div>
 
 <!-- Toast & Loader -->
 <div class="toast" id="toast"></div>
@@ -4513,9 +4615,9 @@ async function loadUserProfile() {
 function enterApp() {
   document.getElementById('auth-screen').style.display = 'none';
   document.getElementById('main-screen').classList.add('active');
-  document.getElementById('bottom-nav').style.display = 'flex';
-  const camper = document.getElementById('wandering-camper');
-  if (camper) camper.classList.add('active');
+  const wrap = document.getElementById('bottom-nav-wrapper');
+  if (wrap) wrap.classList.add('active');
+  initBottomNavState();
   updateAvatars();
   setupRealtimeListeners();
   if (typeof window.setupV5UserListeners === 'function') window.setupV5UserListeners();
@@ -4526,15 +4628,32 @@ function enterApp() {
 function exitApp() {
   document.getElementById('auth-screen').style.display = 'flex';
   document.getElementById('main-screen').classList.remove('active');
-  document.getElementById('bottom-nav').style.display = 'none';
-  const camper = document.getElementById('wandering-camper');
-  if (camper) camper.classList.remove('active');
+  const wrap = document.getElementById('bottom-nav-wrapper');
+  if (wrap) wrap.classList.remove('active');
   document.getElementById('login-email').value = '';
   document.getElementById('login-password').value = '';
   document.getElementById('register-name').value = '';
   document.getElementById('register-email').value = '';
   document.getElementById('register-password').value = '';
 }
+
+/* Collapsible bottom nav */
+function toggleBottomNav() {
+  const wrap = document.getElementById('bottom-nav-wrapper');
+  if (!wrap) return;
+  const collapsed = wrap.classList.toggle('collapsed');
+  try { localStorage.setItem('wildr_nav_collapsed', collapsed ? '1' : '0'); } catch (_) {}
+}
+window.toggleBottomNav = toggleBottomNav;
+
+function initBottomNavState() {
+  try {
+    const wrap = document.getElementById('bottom-nav-wrapper');
+    if (!wrap) return;
+    if (localStorage.getItem('wildr_nav_collapsed') === '1') wrap.classList.add('collapsed');
+  } catch (_) {}
+}
+window.initBottomNavState = initBottomNavState;
 
 function updateAvatars() {
   const name = state.profile?.name || state.user?.displayName || 'U';
@@ -5646,42 +5765,58 @@ function renderStages() {
   const stages = state.currentStages || [];
   const origin = trip?.origin || '';
 
-  // Build itinerary with origin as "point 0" if present
   let html = '';
 
-  // Origin
-  if (origin) {
+  // ── 1. PARTENZA — prompt in cima se manca ──
+  if (!origin) {
+    html += `
+      <div class="origin-prompt" onclick="openOriginPrompt()">
+        <div class="origin-prompt-icon">🏠</div>
+        <div class="origin-prompt-body">
+          <div class="origin-prompt-eyebrow">Prima cosa</div>
+          <div class="origin-prompt-title">Da dove parti?</div>
+          <div class="origin-prompt-sub">Imposta il punto di partenza del viaggio — sarà il punto zero del tuo itinerario.</div>
+        </div>
+        <div class="origin-prompt-arrow">›</div>
+      </div>
+    `;
+  } else {
+    // Origin già impostata — mostra nodo partenza
     html += `
       <div class="itin-node itin-origin" onclick="showOriginInfo()">
-        <div class="itin-connector"></div>
         <div class="itin-badge itin-badge-origin">🏠</div>
         <div class="itin-body">
           <div class="itin-eyebrow">Partenza</div>
           <div class="itin-title">${escapeHtml(origin)}</div>
-          ${trip.startDate ? `<div class="itin-meta">📅 ${formatDate(trip.startDate)}</div>` : ''}
+          ${trip.startDate ? `<div class="itin-meta-row"><span class="itin-meta">📅 ${formatDate(trip.startDate)}</span></div>` : ''}
+        </div>
+        <div class="itin-side">
+          <button class="itin-quick-btn" title="Modifica partenza" onclick="event.stopPropagation(); openOriginPrompt()">✏️</button>
+          <div class="itin-arrow">›</div>
         </div>
       </div>
     `;
   }
 
-  if (!stages.length && !origin) {
-    list.innerHTML = `
-      <div class="empty-state">
+  // ── 2. Tappe ──
+  if (!stages.length) {
+    html += `
+      <div class="empty-state" style="padding: 34px 20px">
         <div class="empty-state-icon">📍</div>
-        <h3>Nessuna tappa</h3>
-        <p>Aggiungi la prima tappa del tuo itinerario. Puoi cercarla per nome, inserire le coordinate o toccarla direttamente sulla mappa.</p>
+        <h3>${origin ? 'Aggiungi la prima tappa' : 'Poi le tappe'}</h3>
+        <p>${origin ? 'Aggiungi la prima tappa del tuo itinerario. Puoi cercarla per nome, inserire le coordinate o toccarla direttamente sulla mappa.' : 'Dopo aver impostato la partenza, aggiungi qui le tappe del viaggio.'}</p>
         <button class="btn btn-ochre btn-sm" onclick="openNewStageModal()" style="width:auto; margin: 0 auto">+ Aggiungi prima tappa</button>
       </div>`;
+    list.innerHTML = html;
     return;
   }
 
-  // Stages
   stages.forEach((s, i) => {
     const isLast = i === stages.length - 1;
     const hasCoords = s.lat != null && s.lng != null;
     html += `
       <div class="itin-node ${isLast ? 'itin-last' : ''}" onclick="openStageDetail('${s.id}')">
-        ${(i > 0 || origin) ? '<div class="itin-connector"></div>' : ''}
+        <div class="itin-connector"></div>
         <div class="itin-badge">${i + 1}</div>
         <div class="itin-body">
           <div class="itin-eyebrow">Tappa ${i + 1}${isLast ? ' · finale' : ''}</div>
@@ -5701,7 +5836,6 @@ function renderStages() {
     `;
   });
 
-  // "Aggiungi nuova tappa" button at the end
   html += `
     <button class="itin-add-btn" onclick="openNewStageModal()">
       <span style="font-size:22px">+</span>
@@ -5711,6 +5845,59 @@ function renderStages() {
 
   list.innerHTML = html;
 }
+
+/* Modal veloce per impostare la partenza */
+function openOriginPrompt() {
+  const trip = state.currentTrip;
+  if (!trip) return;
+  const container = document.getElementById('stage-detail-content');
+  if (!container) return;
+  container.innerHTML = `
+    <div style="text-align:center; padding:8px 0 18px; position:relative">
+      <div style="width:64px; height:64px; border-radius:50%; background:var(--moss); color:#fff; display:inline-flex; align-items:center; justify-content:center; font-size:32px; margin-bottom:10px; box-shadow:0 6px 18px rgba(91,111,58,0.4)">🏠</div>
+      <div style="font-family:'Fraunces',serif; font-style:italic; font-size:12px; color:var(--ink-muted); margin-bottom:2px; letter-spacing:0.05em">Prima cosa</div>
+      <h2 style="margin:0; font-size:24px; font-weight:800; letter-spacing:-0.02em; padding:0 30px">Da dove parti?</h2>
+      <button class="modal-close" style="position:absolute; top:0; right:0" onclick="closeModal('stage-detail-modal')">×</button>
+    </div>
+    <p style="text-align:center; color:var(--ink-muted); font-size:13px; margin:0 0 18px; line-height:1.5">
+      Città o indirizzo di partenza del viaggio. Sarà usata come punto zero dell'itinerario e per la navigazione verso la prima tappa.
+    </p>
+    <div class="field">
+      <label>Punto di partenza</label>
+      <input id="quick-origin-input" type="text" placeholder="Es. San Marino, Repubblica" value="${escapeHtml(trip.origin || '')}" />
+    </div>
+    <button class="btn btn-ochre" onclick="saveQuickOrigin()">Salva partenza</button>
+  `;
+  openModal('stage-detail-modal');
+  // Auto-focus e Enter per salvare
+  setTimeout(() => {
+    const input = document.getElementById('quick-origin-input');
+    if (input) {
+      input.focus();
+      input.addEventListener('keypress', (e) => { if (e.key === 'Enter') saveQuickOrigin(); });
+    }
+  }, 200);
+}
+window.openOriginPrompt = openOriginPrompt;
+
+async function saveQuickOrigin() {
+  const input = document.getElementById('quick-origin-input');
+  if (!input) return;
+  const val = input.value.trim();
+  if (!val) return showToast('Inserisci un punto di partenza', 'error');
+  try {
+    showLoader(true);
+    await window.FB.updateDoc(
+      window.FB.doc(window.FB.db, 'trips', state.currentTripId),
+      { origin: val }
+    );
+    if (state.currentTrip) state.currentTrip.origin = val;
+    closeModal('stage-detail-modal');
+    showToast('Partenza impostata 🏠', 'success');
+  } catch (e) { console.error(e); showToast('Errore: ' + e.message, 'error'); }
+  finally { showLoader(false); }
+}
+window.saveQuickOrigin = saveQuickOrigin;
 
 function showOriginInfo() {
   const trip = state.currentTrip;
