@@ -1193,6 +1193,42 @@
     margin: -14px auto 18px;
   }
 
+  /* === SELETTORE COLORE TAPPA === */
+  .stage-color-picker {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .stage-color-swatch {
+    width: 34px; height: 34px;
+    border-radius: 50%;
+    cursor: pointer;
+    border: 3px solid transparent;
+    transition: all 0.15s;
+    position: relative;
+    flex-shrink: 0;
+  }
+  .stage-color-swatch:hover { transform: scale(1.1); }
+  .stage-color-swatch.selected {
+    border-color: var(--ink);
+    box-shadow: 0 0 0 2px var(--surface), 0 0 0 4px var(--ink);
+  }
+  .stage-color-swatch.selected::after {
+    content: '✓';
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-weight: 800;
+    font-size: 14px;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.4);
+  }
+  .stage-color-swatch.default-swatch {
+    background: var(--grad-sunset);
+  }
+
   /* === STAGE KIND TABS (principale / secondaria / alternativa) === */
   .ns-kind-tabs {
     display: flex;
@@ -1922,16 +1958,32 @@
   .seg-time-label {
     background: #c2410c;
     color: #fff;
-    font-size: 11px;
+    font-size: 9px;
     font-weight: 700;
-    padding: 3px 8px;
-    border-radius: 10px;
+    padding: 2px 6px;
+    border-radius: 8px;
     white-space: nowrap;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.25);
-    border: 1.5px solid rgba(255,255,255,0.6);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.22);
+    border: 1px solid rgba(255,255,255,0.6);
     text-align: center;
     font-family: 'Outfit', sans-serif;
   }
+
+  /* Etichetta nome tappa sulla mappa (tooltip permanente Leaflet) */
+  .leaflet-tooltip.stage-name-tooltip {
+    background: rgba(255,255,255,0.95);
+    color: var(--ink, #2a1a0e);
+    border: 1px solid rgba(0,0,0,0.1);
+    border-radius: 8px;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 7px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.18);
+    font-family: 'Outfit', sans-serif;
+  }
+  .leaflet-tooltip.stage-name-tooltip::before { display: none; }
+  .leaflet-tooltip.stage-name-tooltip-origin { color: #5b6f3a; font-weight: 800; }
+  .leaflet-tooltip.stage-name-tooltip-alt { color: #92650f; }
 
   .emoji-picker {
     display: grid;
@@ -3395,6 +3447,21 @@
     color: var(--ochre-dark);
     border-color: var(--ochre);
   }
+  .itin-eye-btn { font-size: 14px; }
+
+  /* Tappa nascosta — rimpicciolita e sfocata, esclusa dal percorso ma recuperabile */
+  .itin-node.itin-node-hidden {
+    opacity: 0.5;
+    filter: blur(1.5px) grayscale(0.4);
+    transform: scale(0.93);
+    transform-origin: left center;
+    transition: all 0.25s;
+  }
+  .itin-node.itin-node-hidden:hover {
+    opacity: 0.85;
+    filter: blur(0px) grayscale(0.15);
+    transform: scale(0.97);
+  }
 
   /* Tappa intermedia (waypoint) — stile compatto colore fiume */
   .itin-node.itin-waypoint {
@@ -4265,6 +4332,8 @@
           <div style="width:1px; background:var(--border); align-self:stretch; margin:0 4px"></div>
           <!-- Toggle tempi di guida -->
           <button class="map-tool-btn map-tool-style active" id="toggle-seg-times" onclick="toggleSegmentTimes()">⏱️ <span>Tempi</span></button>
+          <!-- Toggle nomi tappe -->
+          <button class="map-tool-btn map-tool-style active" id="toggle-stage-names" onclick="toggleStageNames()">🏷️ <span>Nomi</span></button>
         </div>
         <div id="map-tool-hint" class="map-tool-hint"></div>
         <div class="map-container" id="map-container">
@@ -4559,6 +4628,10 @@
       <div class="field"><label>Durata (gg)</label><input id="ns-days" type="number" min="1" value="1" /></div>
     </div>
     <div class="field"><label>Note</label><textarea id="ns-notes" rows="3" placeholder="Cose da fare, info utili…"></textarea></div>
+    <div class="field">
+      <label>Colore tappa</label>
+      <div id="ns-color-picker" class="stage-color-picker"></div>
+    </div>
     <div style="background:var(--surface-2); padding:12px 14px; border-radius:12px; font-size:13px; margin-bottom:16px; border:1.5px solid var(--border)">
       <strong>Coordinate:</strong> <span id="ns-coords" class="mono">Nessuna</span>
     </div>
@@ -5066,7 +5139,8 @@ function modalHasUnsavedData(modalId) {
     const title = document.getElementById('ns-title')?.value.trim();
     const notes = document.getElementById('ns-notes')?.value.trim();
     const search = document.getElementById('ns-search')?.value.trim();
-    return !!(title || notes || search || state.newStageData);
+    const kindChanged = typeof getSelectedStageKind === 'function' && getSelectedStageKind() !== 'stage';
+    return !!(title || notes || search || state.newStageData || kindChanged || state.newStageColor);
   }
   return false;
 }
@@ -6772,21 +6846,24 @@ function renderStages() {
   let stageCounter = 0;
   mainStages.forEach((s, i) => {
     const isWaypoint = s.kind === 'waypoint';
-    if (!isWaypoint) stageCounter++;
+    const isHidden = !!s.hidden;
+    if (!isWaypoint && !isHidden) stageCounter++;
     const isLast = i === mainStages.length - 1;
     const hasCoords = s.lat != null && s.lng != null;
     const canMoveUp = i > 0;
     const canMoveDown = i < mainStages.length - 1;
     const alts = altsByParent[s.id] || [];
+    const customColorStyle = s.color ? `background:${s.color} !important;` : '';
+    const eyeBtn = `<button class="itin-quick-btn itin-eye-btn" title="${isHidden ? 'Mostra tappa' : 'Nascondi tappa'}" onclick="event.stopPropagation(); toggleStageHidden('${s.id}')">${isHidden ? '🙈' : '👁️'}</button>`;
 
     if (isWaypoint) {
-      // Nodo tappa secondaria — stile compatto, colore fiume
+      // Nodo tappa secondaria — stile compatto, colore fiume (o colore personalizzato)
       html += `
-        <div class="itin-node itin-waypoint" onclick="openStageDetail('${s.id}')">
+        <div class="itin-node itin-waypoint ${isHidden ? 'itin-node-hidden' : ''}" onclick="openStageDetail('${s.id}')">
           <div class="itin-connector"></div>
-          <div class="itin-badge itin-badge-waypoint">📌</div>
+          <div class="itin-badge itin-badge-waypoint" style="${customColorStyle}">📌</div>
           <div class="itin-body">
-            <div class="itin-eyebrow itin-eyebrow-waypoint">Tappa secondaria</div>
+            <div class="itin-eyebrow itin-eyebrow-waypoint">Tappa secondaria${isHidden ? ' · nascosta' : ''}</div>
             <div class="itin-title">${escapeHtml(s.title || 'Senza nome')}</div>
             ${(s.date && s.days) ? stageStayBoxHtml(s) : ''}
             <div class="itin-meta-row" id="itin-seg-${s.id}">
@@ -6796,6 +6873,7 @@ function renderStages() {
             <div id="itin-weather-${s.id}" class="itin-weather-slot"></div>
           </div>
           <div class="itin-side">
+            ${eyeBtn}
             <div class="itin-reorder">
               <button class="itin-reorder-btn" title="Sposta su" ${canMoveUp ? '' : 'disabled'} onclick="event.stopPropagation(); moveStage('${s.id}','up')">▲</button>
               <button class="itin-reorder-btn" title="Sposta giù" ${canMoveDown ? '' : 'disabled'} onclick="event.stopPropagation(); moveStage('${s.id}','down')">▼</button>
@@ -6806,11 +6884,11 @@ function renderStages() {
       `;
     } else {
       html += `
-        <div class="itin-node ${isLast && !alts.length ? 'itin-last' : ''}" onclick="openStageDetail('${s.id}')">
+        <div class="itin-node ${isLast && !alts.length ? 'itin-last' : ''} ${isHidden ? 'itin-node-hidden' : ''}" onclick="openStageDetail('${s.id}')">
           <div class="itin-connector"></div>
-          <div class="itin-badge">${stageCounter}</div>
+          <div class="itin-badge" style="${customColorStyle}">${isHidden ? '—' : stageCounter}</div>
           <div class="itin-body">
-            <div class="itin-eyebrow">Tappa ${stageCounter}${isLast ? ' · finale' : ''}</div>
+            <div class="itin-eyebrow">${isHidden ? 'Tappa nascosta' : 'Tappa ' + stageCounter + (isLast ? ' · finale' : '')}</div>
             <div class="itin-title">${escapeHtml(s.title || 'Senza nome')}</div>
             ${(s.date && s.days) ? stageStayBoxHtml(s) : ''}
             <div class="itin-meta-row" id="itin-seg-${s.id}">
@@ -6822,6 +6900,7 @@ function renderStages() {
             ${s.notes ? `<div class="itin-note">${escapeHtml(s.notes.length > 90 ? s.notes.slice(0,90)+'…' : s.notes)}</div>` : ''}
           </div>
           <div class="itin-side">
+            ${eyeBtn}
             <div class="itin-reorder">
               <button class="itin-reorder-btn" title="Sposta su" ${canMoveUp ? '' : 'disabled'} onclick="event.stopPropagation(); moveStage('${s.id}','up')">▲</button>
               <button class="itin-reorder-btn" title="Sposta giù" ${canMoveDown ? '' : 'disabled'} onclick="event.stopPropagation(); moveStage('${s.id}','down')">▼</button>
@@ -6879,14 +6958,14 @@ if (!state.segmentInfoCache) state.segmentInfoCache = {};
 
 function buildOrderedRoutePoints() {
   // Ritorna array ordinato di punti con coordinate: partenza (se presente) + tappe/secondarie
-  // Le tappe ALTERNATIVE sono escluse: non fanno parte del percorso sequenziale.
+  // Le tappe ALTERNATIVE e quelle NASCOSTE sono escluse: non fanno parte del percorso sequenziale.
   const trip = state.currentTrip;
   const points = [];
   if (trip?.originLat != null && trip?.originLng != null) {
     points.push({ id: '__origin__', lat: trip.originLat, lng: trip.originLng, kind: 'origin', title: trip.origin || 'Partenza' });
   }
   (state.currentStages || []).forEach(s => {
-    if (s.kind === 'alternative') return; // non instradata
+    if (s.kind === 'alternative' || s.hidden) return; // non instradata
     if (s.lat != null && s.lng != null) {
       points.push({ id: s.id, lat: s.lat, lng: s.lng, kind: s.kind === 'waypoint' ? 'waypoint' : 'stage', title: s.title });
     }
@@ -7358,6 +7437,45 @@ function populateAlternativeParentSelect() {
 }
 window.populateAlternativeParentSelect = populateAlternativeParentSelect;
 
+/* Legge il tipo tappa selezionato DIRETTAMENTE dal DOM (quale tab è .active) —
+   fonte di verità unica, evita qualsiasi disallineamento con lo stato JS */
+function getSelectedStageKind() {
+  if (document.getElementById('ns-kind-alternative')?.classList.contains('active')) return 'alternative';
+  if (document.getElementById('ns-kind-waypoint')?.classList.contains('active')) return 'waypoint';
+  return 'stage';
+}
+window.getSelectedStageKind = getSelectedStageKind;
+
+/* =================================================================
+   COLORE PERSONALIZZATO PER TAPPA
+   ================================================================= */
+const STAGE_COLOR_PALETTE = [
+  { hex: '#c2410c', label: 'Ocra' },
+  { hex: '#5b6f3a', label: 'Muschio' },
+  { hex: '#2d6a7e', label: 'Fiume' },
+  { hex: '#d9a441', label: 'Sole' },
+  { hex: '#6b4423', label: 'Corteccia' },
+  { hex: '#7c5cbf', label: 'Viola' },
+  { hex: '#c2477a', label: 'Rosa' },
+  { hex: '#2a8c82', label: 'Verde acqua' }
+];
+
+function renderStageColorPicker(selectedColor) {
+  const picker = document.getElementById('ns-color-picker');
+  if (!picker) return;
+  let html = `<div class="stage-color-swatch default-swatch ${!selectedColor ? 'selected' : ''}" title="Predefinito" onclick="selectStageColor(null)"></div>`;
+  html += STAGE_COLOR_PALETTE.map(c => `
+    <div class="stage-color-swatch ${selectedColor === c.hex ? 'selected' : ''}" style="background:${c.hex}" title="${c.label}" onclick="selectStageColor('${c.hex}')"></div>
+  `).join('');
+  picker.innerHTML = html;
+}
+
+function selectStageColor(hex) {
+  state.newStageColor = hex;
+  renderStageColorPicker(hex);
+}
+window.selectStageColor = selectStageColor;
+
 async function saveStage() {
   const title = document.getElementById('ns-title').value.trim();
   const date = document.getElementById('ns-date').value;
@@ -7365,7 +7483,7 @@ async function saveStage() {
   const notes = document.getElementById('ns-notes').value.trim();
   if (!title) return showToast('Inserisci un nome', 'error');
 
-  const kind = ['waypoint', 'alternative'].includes(state.newStageKind) ? state.newStageKind : 'stage';
+  const kind = getSelectedStageKind();
 
   let parentId = null;
   if (kind === 'alternative') {
@@ -7377,7 +7495,7 @@ async function saveStage() {
   try {
     showLoader(true);
     const isEdit = !!state.editingStageId;
-    const data = { title, date, days, notes, kind };
+    const data = { title, date, days, notes, kind, color: state.newStageColor || null };
     data.parentId = kind === 'alternative' ? parentId : null;
     if (state.newStageData) {
       data.lat = state.newStageData.lat;
@@ -7430,6 +7548,8 @@ function openEditStage(stageId) {
   document.getElementById('ns-date').value = s.date || '';
   document.getElementById('ns-days').value = s.days || 1;
   document.getElementById('ns-notes').value = s.notes || '';
+  state.newStageColor = s.color || null;
+  renderStageColorPicker(state.newStageColor);
   const kind = ['waypoint', 'alternative'].includes(s.kind) ? s.kind : 'stage';
   selectStageKind(kind);
   if (kind === 'alternative') {
@@ -7465,6 +7585,8 @@ function closeStageModal() {
   document.getElementById('ns-date').value = '';
   document.getElementById('ns-days').value = 1;
   document.getElementById('ns-notes').value = '';
+  state.newStageColor = null;
+  renderStageColorPicker(null);
   document.getElementById('ns-coords').textContent = 'Nessuna';
   document.getElementById('stage-search-results').style.display = 'none';
   document.getElementById('ns-modal-title').innerHTML = '📍 Nuova tappa';
@@ -7491,6 +7613,8 @@ function openNewStageModal(presetKind, presetParentId) {
   state.editingStageId = null;
   document.getElementById('ns-modal-title').innerHTML = '📍 Nuova tappa';
   document.getElementById('ns-save-btn').textContent = 'Salva tappa';
+  state.newStageColor = null;
+  renderStageColorPicker(null);
   selectStageKind(presetKind === 'alternative' || presetKind === 'waypoint' ? presetKind : 'stage');
   if (presetKind === 'alternative' && presetParentId) {
     setTimeout(() => {
@@ -7527,6 +7651,22 @@ window.deleteStage = deleteStage;
 
 /* Riordina una tappa su/giù nell'elenco — aggiorna 'order' su Firestore,
    la mappa e la lista si aggiornano da sole tramite il listener realtime */
+/* Nasconde/mostra una tappa: quando nascosta, si rimpicciolisce e si sfoca nell'elenco,
+   viene esclusa dal percorso e dalla numerazione (come se fosse eliminata) ma resta
+   sempre recuperabile toccando di nuovo l'occhio */
+async function toggleStageHidden(id) {
+  const s = state.currentStages.find(x => x.id === id);
+  if (!s) return;
+  try {
+    await window.FB.updateDoc(
+      window.FB.doc(window.FB.db, 'trips', state.currentTripId, 'stages', id),
+      { hidden: !s.hidden }
+    );
+    showToast(s.hidden ? 'Tappa mostrata di nuovo 👁️' : 'Tappa nascosta — esclusa dal percorso 🙈', 'success');
+  } catch (e) { showToast('Errore: ' + e.message, 'error'); }
+}
+window.toggleStageHidden = toggleStageHidden;
+
 async function moveStage(id, direction) {
   // Il riordino su/giù si applica solo a tappe principali/secondarie —
   // le alternative restano agganciate al loro genitore (parentId) e non hanno posizione propria in sequenza
@@ -7803,7 +7943,7 @@ function drawFlyRoute(points) {
       const label = L.marker(mid, {
         icon: L.divIcon({
           html: `<div class="seg-time-label" style="background:${isWaypointSeg ? '#2d6a7e' : '#c2410c'}">📏 ${distKm.toFixed(0)} km</div>`,
-          className: '', iconSize: [80, 22], iconAnchor: [40, 11]
+          className: '', iconSize: [62, 17], iconAnchor: [31, 8]
         }),
         interactive: false, zIndexOffset: 500
       }).addTo(state.mapInstance);
@@ -7923,7 +8063,7 @@ async function drawRoadRoute(points) {
         const label = L.marker(mid, {
           icon: L.divIcon({
             html: `<div class="seg-time-label" style="background:${color}">🕐 ${durationTxt} · ${distanceKm}km</div>`,
-            className: '', iconSize: [110, 22], iconAnchor: [55, 11]
+            className: '', iconSize: [86, 17], iconAnchor: [43, 8]
           }),
           interactive: false, zIndexOffset: 500
         }).addTo(state.mapInstance);
@@ -7973,6 +8113,15 @@ function toggleSegmentTimes() {
 }
 window.toggleSegmentTimes = toggleSegmentTimes;
 
+/* Mostra/nasconde i nomi delle tappe come etichette permanenti sulla mappa */
+function toggleStageNames() {
+  mapState.showStageNames = !mapState.showStageNames;
+  try { localStorage.setItem('wildr_show_stage_names', mapState.showStageNames ? '1' : '0'); } catch (_) {}
+  document.getElementById('toggle-stage-names')?.classList.toggle('active', mapState.showStageNames);
+  if (state.currentTab === 'map') renderMap();
+}
+window.toggleStageNames = toggleStageNames;
+
 function renderMap() {
   const container = document.getElementById('trip-map');
   if (!container) return;
@@ -7986,11 +8135,15 @@ function renderMap() {
   mapState.planeMarker = null;
   mapState.segmentLabelMarkers = [];
   if (mapState.planeAnim) { cancelAnimationFrame(mapState.planeAnim); mapState.planeAnim = null; }
-  // Inizializza toggle tempi (solo la prima volta)
+  // Inizializza toggle tempi e nomi (solo la prima volta)
   if (mapState.showSegTimes === undefined) {
     try { mapState.showSegTimes = localStorage.getItem('wildr_show_seg_times') !== '0'; } catch (_) { mapState.showSegTimes = true; }
   }
   document.getElementById('toggle-seg-times')?.classList.toggle('active', mapState.showSegTimes);
+  if (mapState.showStageNames === undefined) {
+    try { mapState.showStageNames = localStorage.getItem('wildr_show_stage_names') !== '0'; } catch (_) { mapState.showStageNames = true; }
+  }
+  document.getElementById('toggle-stage-names')?.classList.toggle('active', mapState.showStageNames);
 
   document.querySelectorAll('.map-tool-btn:not(.map-tool-style)').forEach(b => b.classList.remove('active'));
   document.getElementById('tool-none')?.classList.add('active');
@@ -8004,7 +8157,7 @@ function renderMap() {
 
   const trip = state.currentTrip;
   const hasOrigin = trip?.originLat != null && trip?.originLng != null;
-  const allStagesWithCoords = state.currentStages.filter(s => s.lat != null && s.lng != null);
+  const allStagesWithCoords = state.currentStages.filter(s => s.lat != null && s.lng != null && !s.hidden);
   const stagesWithCoords = allStagesWithCoords.filter(s => s.kind !== 'alternative'); // esclude le alternative dal routing
   const altsWithCoords = allStagesWithCoords.filter(s => s.kind === 'alternative');
 
@@ -8044,32 +8197,40 @@ function renderMap() {
   }
   updateRouteStyleToggle();
 
-  // ── Marker partenza 🏠 ──
+  // ── Marker partenza 🏠 — dimensioni compatte, con nome se il toggle è attivo ──
   if (hasOrigin) {
     const homeIcon = L.divIcon({
-      html: `<div style="background:#5b6f3a;color:#fff;width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:19px;box-shadow:0 4px 12px rgba(91,111,58,0.5);border:2.5px solid #fff">🏠</div>`,
-      iconSize: [38, 38], iconAnchor: [19, 19], className: ''
+      html: `<div style="background:#5b6f3a;color:#fff;width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;box-shadow:0 3px 9px rgba(91,111,58,0.5);border:2px solid #fff">🏠</div>`,
+      iconSize: [30, 30], iconAnchor: [15, 15], className: ''
     });
-    L.marker([trip.originLat, trip.originLng], { icon: homeIcon }).addTo(state.mapInstance)
+    const originMarker = L.marker([trip.originLat, trip.originLng], { icon: homeIcon }).addTo(state.mapInstance)
       .bindPopup(`<strong>🏠 Partenza</strong><br/>${escapeHtml(trip.origin || '')}${trip.startDate ? '<br/>📅 ' + formatDate(trip.startDate) : ''}`);
+    if (mapState.showStageNames) {
+      originMarker.bindTooltip('Partenza', { permanent: true, direction: 'top', offset: [0, -16], className: 'stage-name-tooltip stage-name-tooltip-origin' });
+    }
   }
 
-  // ── Tappe numerate (le secondarie hanno badge diverso, senza numero) ──
+  // ── Tappe numerate (le secondarie hanno badge diverso, senza numero) — dimensioni compatte, colore personalizzabile ──
   let stageCounter = 0;
   stagesWithCoords.forEach((s) => {
     const isWaypoint = s.kind === 'waypoint';
     if (!isWaypoint) stageCounter++;
+    const waypointBg = s.color || '#2d6a7e';
+    const stageBg = s.color ? s.color : 'linear-gradient(135deg,#d97757,#f4a261)';
     const icon = isWaypoint
       ? L.divIcon({
-          html: `<div style="background:#2d6a7e;color:#fff;width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;box-shadow:0 4px 10px rgba(45,106,126,0.5);border:2.5px solid #fff">📌</div>`,
-          iconSize: [30, 30], iconAnchor: [15, 15], className: ''
+          html: `<div style="background:${waypointBg};color:#fff;width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;box-shadow:0 3px 8px rgba(45,106,126,0.5);border:2px solid #fff">📌</div>`,
+          iconSize: [24, 24], iconAnchor: [12, 12], className: ''
         })
       : L.divIcon({
-          html: `<div style="background:linear-gradient(135deg,#d97757,#f4a261);color:#fff;width:36px;height:36px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;box-shadow:0 4px 12px rgba(217,119,87,0.5);border:2.5px solid #fff"><span style="transform:rotate(45deg)">${stageCounter}</span></div>`,
-          iconSize: [36, 36], iconAnchor: [18, 36], className: ''
+          html: `<div style="background:${stageBg};color:#fff;width:28px;height:28px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:11px;box-shadow:0 3px 8px rgba(217,119,87,0.5);border:2px solid #fff"><span style="transform:rotate(45deg)">${stageCounter}</span></div>`,
+          iconSize: [28, 28], iconAnchor: [14, 28], className: ''
         });
-    L.marker([s.lat, s.lng], { icon }).addTo(state.mapInstance)
+    const marker = L.marker([s.lat, s.lng], { icon }).addTo(state.mapInstance)
       .bindPopup(`<strong>${isWaypoint ? '📌 ' : ''}${escapeHtml(s.title)}</strong>${s.date ? '<br/>📅 ' + formatDate(s.date) : ''}${s.notes ? '<br/>' + escapeHtml(s.notes) : ''}`);
+    if (mapState.showStageNames) {
+      marker.bindTooltip(escapeHtml(s.title || ''), { permanent: true, direction: 'top', offset: [0, isWaypoint ? -14 : -20], className: 'stage-name-tooltip' });
+    }
   });
 
   // ── Tappe ALTERNATIVE — marker distinto (sole/dorato), collegate al genitore con linea tratteggiata, non instradate ──
@@ -8082,11 +8243,14 @@ function renderMap() {
       }).addTo(state.mapInstance);
     }
     const altIcon = L.divIcon({
-      html: `<div style="background:#f5b04a;color:#6b4423;width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;box-shadow:0 4px 10px rgba(245,176,74,0.55);border:2.5px dashed #fff">🔀</div>`,
-      iconSize: [30, 30], iconAnchor: [15, 15], className: ''
+      html: `<div style="background:#f5b04a;color:#6b4423;width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;box-shadow:0 3px 8px rgba(245,176,74,0.55);border:2px dashed #fff">🔀</div>`,
+      iconSize: [24, 24], iconAnchor: [12, 12], className: ''
     });
-    L.marker([a.lat, a.lng], { icon: altIcon }).addTo(state.mapInstance)
+    const altMarker = L.marker([a.lat, a.lng], { icon: altIcon }).addTo(state.mapInstance)
       .bindPopup(`<strong>🔀 ${escapeHtml(a.title || 'Alternativa')}</strong><br/><em style="font-size:12px">Alternativa a: ${escapeHtml(parent?.title || '—')}</em>${a.notes ? '<br/>' + escapeHtml(a.notes) : ''}`);
+    if (mapState.showStageNames) {
+      altMarker.bindTooltip(escapeHtml(a.title || ''), { permanent: true, direction: 'top', offset: [0, -12], className: 'stage-name-tooltip stage-name-tooltip-alt' });
+    }
   });
 
   // ── Marker emoji personalizzati ──
@@ -11762,7 +11926,7 @@ function openStageDetail(stageId) {
       </div>
       <div class="info-box">
         <div class="lbl">Durata</div>
-        <div class="val" style="font-size:15px">${s.days ? s.days + ' giorno' + (s.days > 1 ? 'i' : '') : '—'}</div>
+        <div class="val" style="font-size:15px">${s.days ? pluralizeIt(s.days, 'giorno', 'giorni') : '—'}</div>
       </div>
     </div>
 
