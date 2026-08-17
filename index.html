@@ -1836,6 +1836,39 @@
     box-shadow: var(--shadow-sm);
     border: 1.5px solid var(--border);
   }
+  .map-container:fullscreen,
+  .map-container:-webkit-full-screen {
+    height: 100vh !important;
+    width: 100vw !important;
+    border-radius: 0 !important;
+    border: none !important;
+    max-width: none;
+  }
+  .map-container:fullscreen #trip-map,
+  .map-container:-webkit-full-screen #trip-map {
+    height: 100% !important;
+  }
+  .map-fullscreen-btn {
+    position: absolute;
+    top: 12px; right: 12px;
+    z-index: 500;
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.95);
+    color: var(--ink);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.25);
+    border: 1.5px solid var(--border);
+    transition: all 0.15s;
+  }
+  [data-theme="dark"] .map-fullscreen-btn { background: rgba(46,36,24,0.95); }
+  .map-fullscreen-btn:hover { background: var(--ochre); color: #fff; }
+  .map-fullscreen-btn.is-fullscreen {
+    top: calc(var(--safe-top) + 12px);
+  }
   .stage-mini-map {
     height: 170px;
     border-radius: var(--radius);
@@ -4234,8 +4267,9 @@
           <button class="map-tool-btn map-tool-style active" id="toggle-seg-times" onclick="toggleSegmentTimes()">⏱️ <span>Tempi</span></button>
         </div>
         <div id="map-tool-hint" class="map-tool-hint"></div>
-        <div class="map-container">
+        <div class="map-container" id="map-container">
           <div id="trip-map"></div>
+          <button class="map-fullscreen-btn" id="map-fullscreen-btn" onclick="toggleMapFullscreen()" title="Schermo intero">⛶</button>
         </div>
       </div>
 
@@ -5025,8 +5059,28 @@ function closeModal(id) {
 window.openModal = openModal;
 window.closeModal = closeModal;
 
+/* Ritorna true se il modal indicato ha dati inseriti ma non ancora salvati —
+   usato per chiedere conferma prima di chiuderlo cliccando fuori per sbaglio */
+function modalHasUnsavedData(modalId) {
+  if (modalId === 'new-stage-modal') {
+    const title = document.getElementById('ns-title')?.value.trim();
+    const notes = document.getElementById('ns-notes')?.value.trim();
+    const search = document.getElementById('ns-search')?.value.trim();
+    return !!(title || notes || search || state.newStageData);
+  }
+  return false;
+}
+window.modalHasUnsavedData = modalHasUnsavedData;
+
 document.addEventListener('click', e => {
   if (e.target.classList.contains('modal-overlay')) {
+    const modalId = e.target.id;
+    if (modalHasUnsavedData(modalId)) {
+      if (!confirm('Hai inserito dei dati non ancora salvati. Chiudere comunque senza salvare?')) {
+        return; // annulla: il modal resta aperto
+      }
+      if (modalId === 'new-stage-modal') { closeStageModal(); return; }
+    }
     e.target.classList.remove('active');
   }
 });
@@ -7419,6 +7473,19 @@ function closeStageModal() {
 }
 window.closeStageModal = closeStageModal;
 
+/* Suggerisce la data di partenza per la prossima tappa: il "check-out" dell'ultima
+   tappa inserita (data + giorni), o la sua data se non ha una durata, o la data di
+   partenza del viaggio se non c'è ancora nessuna tappa */
+function getSuggestedNextStageDate() {
+  const mainStages = (state.currentStages || []).filter(s => s.kind !== 'alternative');
+  if (mainStages.length) {
+    const last = mainStages[mainStages.length - 1];
+    if (last.date) return last.days ? addDaysToDate(last.date, last.days) : last.date;
+  }
+  return state.currentTrip?.startDate || '';
+}
+window.getSuggestedNextStageDate = getSuggestedNextStageDate;
+
 function openNewStageModal(presetKind, presetParentId) {
   // Assicura stato pulito (non in edit mode)
   state.editingStageId = null;
@@ -7431,6 +7498,9 @@ function openNewStageModal(presetKind, presetParentId) {
       if (sel) sel.value = presetParentId;
     }, 0);
   }
+  // Precompila la data con la partenza suggerita in base all'ultima tappa
+  const dateInput = document.getElementById('ns-date');
+  if (dateInput) dateInput.value = getSuggestedNextStageDate();
   openModal('new-stage-modal');
 }
 window.openNewStageModal = openNewStageModal;
@@ -7558,6 +7628,38 @@ const mapState = {
   showSegTimes: undefined,     // toggle etichette tempo/distanza per segmento (init da localStorage al primo renderMap)
   segmentLabelMarkers: []      // riferimenti alle etichette per poterle nascondere/mostrare
 };
+
+/* =================================================================
+   MAPPA A TUTTO SCHERMO
+   ================================================================= */
+function toggleMapFullscreen() {
+  const container = document.getElementById('map-container');
+  if (!container) return;
+  const isFs = document.fullscreenElement || document.webkitFullscreenElement;
+  if (!isFs) {
+    if (container.requestFullscreen) container.requestFullscreen();
+    else if (container.webkitRequestFullscreen) container.webkitRequestFullscreen();
+    else { showToast('Schermo intero non supportato su questo browser', 'error'); }
+  } else {
+    if (document.exitFullscreen) document.exitFullscreen();
+    else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+  }
+}
+window.toggleMapFullscreen = toggleMapFullscreen;
+
+function _onFullscreenChange() {
+  const btn = document.getElementById('map-fullscreen-btn');
+  const isFs = !!(document.fullscreenElement || document.webkitFullscreenElement);
+  if (btn) {
+    btn.textContent = isFs ? '✕' : '⛶';
+    btn.title = isFs ? 'Esci da schermo intero' : 'Schermo intero';
+    btn.classList.toggle('is-fullscreen', isFs);
+  }
+  // Leaflet deve ricalcolare le dimensioni dopo il cambio di layout
+  setTimeout(() => { if (state.mapInstance) state.mapInstance.invalidateSize(); }, 150);
+}
+document.addEventListener('fullscreenchange', _onFullscreenChange);
+document.addEventListener('webkitfullscreenchange', _onFullscreenChange);
 
 function setMapTool(tool) {
   mapState.tool = tool;
@@ -8036,7 +8138,7 @@ function renderMap() {
       state.editingStageId = null;
       state.newStageData = { lat, lng };
       document.getElementById('ns-title').value = '';
-      document.getElementById('ns-date').value = '';
+      document.getElementById('ns-date').value = getSuggestedNextStageDate();
       document.getElementById('ns-notes').value = '';
       document.getElementById('ns-coords').textContent = `${lat.toFixed(5)}, ${lng.toFixed(5)}`;
       document.getElementById('ns-modal-title').innerHTML = '📍 Nuova tappa';
